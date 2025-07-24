@@ -1,0 +1,38 @@
+-- RedefineTables
+PRAGMA defer_foreign_keys=ON;
+PRAGMA foreign_keys=OFF;
+CREATE TABLE "new_MarketData" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "symbol" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "image" TEXT NOT NULL,
+    "currentPrice" REAL NOT NULL,
+    "marketCap" REAL NOT NULL,
+    "marketCapRank" INTEGER,
+    "fullyDilutedValuation" REAL,
+    "totalVolume" REAL,
+    "high24h" REAL,
+    "low24h" REAL,
+    "priceChange24h" REAL,
+    "priceChangePercentage24h" REAL,
+    "marketCapChange24h" REAL,
+    "marketCapChangePercentage24h" REAL,
+    "circulatingSupply" REAL,
+    "totalSupply" REAL,
+    "maxSupply" REAL,
+    "ath" REAL,
+    "athChangePercentage" REAL,
+    "athDate" DATETIME NOT NULL,
+    "atl" REAL,
+    "atlChangePercentage" REAL,
+    "atlDate" DATETIME NOT NULL,
+    "lastUpdated" DATETIME NOT NULL,
+    "assetId" TEXT,
+    CONSTRAINT "MarketData_assetId_fkey" FOREIGN KEY ("assetId") REFERENCES "Asset" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+INSERT INTO "new_MarketData" ("assetId", "ath", "athChangePercentage", "athDate", "atl", "atlChangePercentage", "atlDate", "circulatingSupply", "currentPrice", "fullyDilutedValuation", "high24h", "id", "image", "lastUpdated", "low24h", "marketCap", "marketCapChange24h", "marketCapChangePercentage24h", "marketCapRank", "maxSupply", "name", "priceChange24h", "priceChangePercentage24h", "symbol", "totalSupply", "totalVolume") SELECT "assetId", "ath", "athChangePercentage", "athDate", "atl", "atlChangePercentage", "atlDate", "circulatingSupply", "currentPrice", "fullyDilutedValuation", "high24h", "id", "image", "lastUpdated", "low24h", "marketCap", "marketCapChange24h", "marketCapChangePercentage24h", "marketCapRank", "maxSupply", "name", "priceChange24h", "priceChangePercentage24h", "symbol", "totalSupply", "totalVolume" FROM "MarketData";
+DROP TABLE "MarketData";
+ALTER TABLE "new_MarketData" RENAME TO "MarketData";
+CREATE UNIQUE INDEX "MarketData_assetId_key" ON "MarketData"("assetId");
+PRAGMA foreign_keys=ON;
+PRAGMA defer_foreign_keys=OFF;

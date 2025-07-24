@@ -1,0 +1,85 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  name         String
+  password     String
+  createdAt    DateTime       @default(now())
+  transactions Transaction[]
+  portfolios   Portfolio[]
+  assets   Asset[]
+}
+
+model Transaction {
+  id         Int       @id @default(autoincrement())
+  type       String
+  assetId    String
+  quantity   Float
+  price      Float
+  timestamp  DateTime
+  userId     Int
+  asset      Asset     @relation(fields: [assetId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
+  portfolioId Int?
+  portfolio  Portfolio? @relation(fields: [portfolioId], references: [id])
+}
+
+model Asset {
+  id            String         @id
+  name          String
+  symbol        String
+  marketId      String?        @unique
+  market        MarketData?    @relation("AssetMarketData")
+  transactions  Transaction[]
+  userId   Int      
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Portfolio {
+  id         Int           @id @default(autoincrement())
+  name       String
+  userId     Int
+  createdAt  DateTime      @default(now())
+  user       User          @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+}
+
+model MarketData {
+  id                             String   @id
+  symbol                         String
+  name                           String
+  image                          String?
+  currentPrice                   Float?
+  marketCap                      Float?
+  marketCapRank                  Int?
+  fullyDilutedValuation          Float?
+  totalVolume                    Float?
+  high24h                        Float?
+  low24h                         Float?
+  priceChange24h                 Float?
+  priceChangePercentage24h       Float?
+  marketCapChange24h             Float?
+  marketCapChangePercentage24h   Float?
+  circulatingSupply              Float?
+  totalSupply                    Float?
+  maxSupply                      Float?
+  ath                            Float?
+  athChangePercentage            Float?
+  athDate                        DateTime?
+  atl                            Float?
+  atlChangePercentage            Float?
+  atlDate                        DateTime?
+  lastUpdated                    DateTime?
+  assetId                        String?  @unique
+  asset                          Asset?   @relation("AssetMarketData", fields: [assetId], references: [id])
+}

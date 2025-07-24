@@ -1,0 +1,12 @@
+{
+    "scripts": {
+        "start": "concurrently \"npm:dev:frontend\" \"npm:dev:backend\" \"npm:dev:electron\"",
+        "dev:frontend": "cd frontend && npm run dev",
+        "dev:backend": "cd backend && npm run start:dev",
+        "dev:electron": "wait-on http://localhost:5173 && npx electron ./electron/main.mjs"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2",
+        "wait-on": "^7.2.0"
+    }
+}
