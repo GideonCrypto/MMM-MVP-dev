@@ -24,3 +24,12 @@ export declare class TransactionResponseDto {
     asset: [];
     user: [];
 }
+export declare class GetAssetsResponseDto {
+    id: string;
+    name: string;
+    symbol: string;
+    marketId: number | null;
+    userId: 6;
+    user: [];
+    transactions: [];
+}

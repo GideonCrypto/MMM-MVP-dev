@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, InternalServerErrorException, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
 import { TransactionService } from "./transaction.service";
 import { ApiOkResponse } from "@nestjs/swagger";
-import { AddTransactionDto, GetTransactionsDto, TransactionResponseDto, UpdateTransactionDto } from "./dto/transaction.dto";
+import { AddTransactionDto, GetAssetsResponseDto, GetTransactionsDto, TransactionResponseDto, UpdateTransactionDto } from "./dto/transaction.dto";
 
 @Controller('transactionData')
 export class TransactionController {
@@ -61,6 +61,22 @@ export class TransactionController {
             return transactions;
         } catch (error) {
             console.error('Get transaction error:', error);
+            throw new InternalServerErrorException('Unexpected error occurred');
+        }
+    }
+
+    @Get('getAssets/:userId')
+    @ApiOkResponse({
+                description: 'Success',
+                type: [GetAssetsResponseDto],
+            })
+    async getAssets(@Param('userId', ParseIntPipe) userId: number) {
+        try {
+            const assets = await this.service.getAssets(userId);
+            
+            return assets;
+        } catch (error) {
+            console.error('Get assets error:', error);
             throw new InternalServerErrorException('Unexpected error occurred');
         }
     }

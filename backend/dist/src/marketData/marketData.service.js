@@ -23,7 +23,6 @@ let MarketDataService = class MarketDataService {
     }
     async getTopCoins() {
         const rawData = await this.coingeckoService.getTopCoins();
-        console.log(rawData);
         return rawData;
     }
     async syncMarketData() {

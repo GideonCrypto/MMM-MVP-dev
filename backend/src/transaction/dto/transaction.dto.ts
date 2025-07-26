@@ -83,3 +83,33 @@ export class TransactionResponseDto {
     @IsArray()
     user!: [];
 }
+
+export class GetAssetsResponseDto {
+    @ApiProperty()
+    @IsString()
+    id!: string;
+
+    @ApiProperty()
+    @IsString()
+    name!: string;
+
+    @ApiProperty()
+    @IsString()
+    symbol!: string;
+
+    @ApiProperty()
+    @IsNumber()
+    marketId!: number | null;
+
+    @ApiProperty()
+    @IsNumber()
+    userId!: 6;
+
+    @ApiProperty()
+    @IsArray()
+    user!: [];
+
+    @ApiProperty()
+    @IsArray()
+    transactions!: [];
+}

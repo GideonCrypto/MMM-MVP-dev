@@ -24,7 +24,6 @@ let MarketDataController = class MarketDataController {
     }
     async top() {
         try {
-            console.log('controller');
             return this.service.getTopCoins();
         }
         catch (error) {

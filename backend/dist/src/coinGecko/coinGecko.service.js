@@ -16,7 +16,6 @@ let CoingeckoService = class CoingeckoService {
     async getTopCoins() {
         let page = 1;
         const perPage = 5;
-        console.log('top');
         const response = await axios_1.default.get('https://api.coingecko.com/api/v3/coins/markets', {
             params: {
                 vs_currency: 'usd',
@@ -26,7 +25,6 @@ let CoingeckoService = class CoingeckoService {
                 sparkline: false,
             },
         });
-        console.log(response.data);
         return response.data;
     }
     async getMarketData() {

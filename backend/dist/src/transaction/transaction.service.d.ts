@@ -47,6 +47,30 @@ export declare class TransactionService {
         userId: number;
         portfolioId: number | null;
     })[]>;
+    getAssets(userId: number): Promise<({
+        user: {
+            id: number;
+            name: string;
+            password: string;
+            createdAt: Date;
+        };
+        transactions: {
+            id: number;
+            assetId: string;
+            type: string;
+            quantity: number;
+            price: number;
+            timestamp: Date;
+            userId: number;
+            portfolioId: number | null;
+        }[];
+    } & {
+        symbol: string;
+        id: string;
+        name: string;
+        userId: number;
+        marketId: string | null;
+    })[]>;
     deleteTransaction(transactionId: number): Promise<{
         message: string;
     }>;
