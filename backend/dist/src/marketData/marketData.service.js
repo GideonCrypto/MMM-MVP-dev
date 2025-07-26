@@ -21,6 +21,11 @@ let MarketDataService = class MarketDataService {
         this.prisma = prisma;
         this.coingeckoService = coingeckoService;
     }
+    async getTopCoins() {
+        const rawData = await this.coingeckoService.getTopCoins();
+        console.log(rawData);
+        return rawData;
+    }
     async syncMarketData() {
         const rawData = await this.coingeckoService.getMarketData();
         const dtoData = rawData.map((item) => {

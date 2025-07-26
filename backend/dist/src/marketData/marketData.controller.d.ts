@@ -3,6 +3,7 @@ import { FindAllMarketData } from './dto/marketData.dto';
 export declare class MarketDataController {
     private readonly service;
     constructor(service: MarketDataService);
+    top(): Promise<any>;
     sync(): Promise<void>;
     findAll(ids: []): Promise<FindAllMarketData[]> | Promise<{
         symbol: string;

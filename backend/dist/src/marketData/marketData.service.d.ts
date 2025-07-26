@@ -5,6 +5,7 @@ export declare class MarketDataService {
     private prisma;
     private readonly coingeckoService;
     constructor(prisma: PrismaService, coingeckoService: CoingeckoService);
+    getTopCoins(): Promise<any>;
     syncMarketData(): Promise<void>;
     upsertMany(dataArray: CreateMarketDataDto[]): Promise<void>;
     findAll(data: string[]): Promise<FindAllMarketData[]>;

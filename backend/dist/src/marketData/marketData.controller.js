@@ -22,6 +22,15 @@ let MarketDataController = class MarketDataController {
     constructor(service) {
         this.service = service;
     }
+    async top() {
+        try {
+            console.log('controller');
+            return this.service.getTopCoins();
+        }
+        catch (error) {
+            throw new common_1.InternalServerErrorException('Unexpected error occurred');
+        }
+    }
     async sync() {
         try {
             return this.service.syncMarketData();
@@ -45,6 +54,15 @@ let MarketDataController = class MarketDataController {
     }
 };
 exports.MarketDataController = MarketDataController;
+__decorate([
+    (0, common_1.Get)('top'),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'Success',
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], MarketDataController.prototype, "top", null);
 __decorate([
     (0, common_1.Get)('sync'),
     (0, swagger_1.ApiOkResponse)({

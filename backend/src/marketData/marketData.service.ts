@@ -6,6 +6,11 @@ import { CoingeckoService } from 'src/coinGecko/coinGecko.service';
 @Injectable()
 export class MarketDataService {
     constructor(private prisma: PrismaService, private readonly coingeckoService: CoingeckoService,) {}
+    async getTopCoins() {
+        const rawData = await this.coingeckoService.getTopCoins();
+        return rawData
+    }
+
     async syncMarketData() {
         const rawData = await this.coingeckoService.getMarketData();
 

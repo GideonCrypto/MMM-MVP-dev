@@ -7,6 +7,18 @@ import { CreateMarketDataDto, FindAllMarketData } from './dto/marketData.dto';
 export class MarketDataController {
     constructor(private readonly service: MarketDataService) {}
 
+    @Get('top')
+    @ApiOkResponse({
+        description: 'Success',
+    })
+    async top() {
+        try {
+            return this.service.getTopCoins();
+        } catch (error) {
+            throw new InternalServerErrorException('Unexpected error occurred');
+        }
+    }
+
     @Get('sync')
     @ApiOkResponse({
         description: 'Success',
