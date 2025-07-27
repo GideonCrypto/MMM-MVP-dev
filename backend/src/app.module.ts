@@ -5,9 +5,10 @@ import { AuthModule } from './auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
 import { TransactionModule } from './transaction/transaction.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
-  imports: [MarketDataModule, UserModule, AuthModule, TransactionModule, PortfolioModule],
+  imports: [MarketDataModule, UserModule, AuthModule, TransactionModule, PortfolioModule, DatabaseModule],
   controllers: [],
   providers: [],
 })
