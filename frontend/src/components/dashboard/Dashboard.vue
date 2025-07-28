@@ -1,6 +1,5 @@
 <template>
     <div class="dashboard-main-container">
-        <!-- <h1>Dashboard</h1> -->
         <div class="top-container">
             <div class="container-item portfolio">
                 <TotalPortfolio/>
@@ -9,7 +8,7 @@
                 <h4>Market data</h4>
                 <ul class="list-container">
                     <AssetListItem
-                        v-for="item in listItems"
+                        v-for="item in listItemsApiTop"
                         :key="item.id"
                         :name="item.name"
                         :img="item.img"
@@ -42,9 +41,47 @@
 </template>
 
 <script setup>
+    import { ref, onMounted } from 'vue'
     import AssetListItem from '@/ui/common/AssetListItem.vue'
     import FearGreed from '@/components/dashboard/items/FearGreed.vue'
     import TotalPortfolio from '@/components/dashboard/items/TotalPortfolio.vue'
+    import { api } from '@/components/api/api.ts'
+    import { useLocalCache } from '@/components/utils/useLocalCache'
+
+    const listItemsApiTop = ref([])
+
+    const loadingApi = ref(true)
+    const errorApi = ref(null)
+
+    const getTopFromApi = async () => {
+        try {
+            const data = await useLocalCache({
+                key: 'marketDataTop',
+                ttl: 5 * 60 * 1000, // 5 min
+                fetcher: async () => {
+                    console.log('⏳ Fetch to API') 
+                    const response = await api.get('marketData/top')
+                    return response.data.slice(0, 5).map((item, index) => ({
+                        id: index,
+                        name: item.name,
+                        price: Number(item.current_price.toFixed(4)),
+                        change: Number(item.price_change_24h.toFixed(4))
+                    }))
+                }
+            })
+
+            listItemsApiTop.value = data
+            
+        } catch (err) {
+            errorApi.value = err.message || 'Request failed'
+        } finally {
+            loadingApi.value = false
+        }
+    } 
+
+    onMounted(() => {
+        getTopFromApi()
+    })
 
     const listItems = [{
             id:0,

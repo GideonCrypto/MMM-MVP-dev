@@ -12,9 +12,8 @@
 <script setup>
     defineProps({
         name: String,
-        img: String,
-        price: String,
-        change: String
+        price: Number | String,
+        change: Number | String
     })
     defineEmits(['select'])
 </script>
