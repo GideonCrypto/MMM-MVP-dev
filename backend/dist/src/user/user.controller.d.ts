@@ -6,7 +6,7 @@ export declare class UserController {
     createUser(createUserDto: CreateUserDto): Promise<{
         id: number;
         name: string;
-        password: string;
         createdAt: Date;
+        password: string;
     }>;
 }

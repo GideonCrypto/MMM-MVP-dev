@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
-import { CreateMarketDataDto, FindAllMarketData } from './dto/marketData.dto';
+import { CreateMarketDataDto, GetMarketDataDto } from './dto/marketData.dto';
 import { CoingeckoService } from 'src/coinGecko/coinGecko.service';
 
 @Injectable()
@@ -83,19 +83,68 @@ export class MarketDataService {
         }
     }
 
-    async findAll(data: string[]): Promise<FindAllMarketData[]> {
-        const res = await this.prisma.marketData.findMany({
-            where: {
-                id: {
-                    in: data,
-                },
-            },
-        });
-        return res
-    }
+    async findAll(query: GetMarketDataDto) {
+        const {
+            name,
+            currentPrice,
+            marketCap,
+            high24h,
+            low24h,
+            priceChange24H,
+            priceChangePercent24H,
+            page,
+            limit,
+            orderBy,
+            orderDirection,
+        } = query;
 
-    async findOne(id: string) {
-        let res = await this.prisma.marketData.findUnique({ where: { id } });
-        return res ;
+        const filters: any = {};
+
+        if (name) filters.name = { contains: name };
+        if (currentPrice !== undefined) filters.currentPrice = currentPrice;
+        if (marketCap !== undefined) filters.marketCap = marketCap;
+        if (high24h !== undefined) filters.high24h = high24h;
+        if (low24h !== undefined) filters.low24h = low24h;
+        if (priceChange24H !== undefined) filters.priceChange24H = priceChange24H;
+        if (priceChangePercent24H !== undefined) filters.priceChangePercent24H = priceChangePercent24H;
+
+        const skip = (page - 1) * limit;
+
+        const allowedOrderFields = [
+            'name',
+            'currentPrice',
+            'marketCap',
+            'high24h',
+            'low24h',
+            'priceChange24H',
+            'priceChangePercent24H',
+            'createdAt',
+            'id',
+        ];
+
+        let order: { [key: string]: 'asc' | 'desc' } = { id: 'asc' };
+
+        if (orderBy && allowedOrderFields.includes(orderBy)) {
+            order = {
+                [orderBy]: orderDirection === 'desc' ? 'desc' : 'asc',
+            };
+        }
+
+        const [data, total] = await Promise.all([
+            this.prisma.marketData.findMany({
+                where: filters,
+                skip,
+                take: limit,
+                orderBy: order,
+            }),
+            this.prisma.marketData.count({ where: filters }),
+        ]);
+
+        return {
+            data,
+            total,
+            page,
+            lastPage: Math.ceil(total / limit),
+        };
     }
 }

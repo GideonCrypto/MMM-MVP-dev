@@ -30,8 +30,8 @@ export declare class TransactionController {
         user: {
             id: number;
             name: string;
-            password: string;
             createdAt: Date;
+            password: string;
         };
         asset: {
             symbol: string;
@@ -54,8 +54,8 @@ export declare class TransactionController {
         user: {
             id: number;
             name: string;
-            password: string;
             createdAt: Date;
+            password: string;
         };
         transactions: {
             id: number;

@@ -9,9 +9,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateMarketDataDto = exports.FindAllMarketData = void 0;
+exports.GetMarketDataDto = exports.CreateMarketDataDto = exports.FindAllMarketData = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
+const class_transformer_1 = require("class-transformer");
 class FindAllMarketData {
     id;
 }
@@ -184,4 +185,94 @@ __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", Object)
 ], CreateMarketDataDto.prototype, "assetId", void 0);
+class GetMarketDataDto {
+    name;
+    currentPrice;
+    marketCap;
+    high24h;
+    low24h;
+    priceChange24H;
+    priceChangePercent24H;
+    page = 1;
+    limit = 10;
+    orderBy;
+    orderDirection = 'asc';
+}
+exports.GetMarketDataDto = GetMarketDataDto;
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, swagger_1.ApiProperty)({ required: false }),
+    __metadata("design:type", String)
+], GetMarketDataDto.prototype, "name", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    (0, swagger_1.ApiProperty)({ required: false }),
+    __metadata("design:type", Number)
+], GetMarketDataDto.prototype, "currentPrice", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    (0, swagger_1.ApiProperty)({ required: false }),
+    __metadata("design:type", Number)
+], GetMarketDataDto.prototype, "marketCap", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    (0, swagger_1.ApiProperty)({ required: false }),
+    __metadata("design:type", Number)
+], GetMarketDataDto.prototype, "high24h", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    (0, swagger_1.ApiProperty)({ required: false }),
+    __metadata("design:type", Number)
+], GetMarketDataDto.prototype, "low24h", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    (0, swagger_1.ApiProperty)({ required: false }),
+    __metadata("design:type", Number)
+], GetMarketDataDto.prototype, "priceChange24H", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    (0, swagger_1.ApiProperty)({ required: false }),
+    __metadata("design:type", Number)
+], GetMarketDataDto.prototype, "priceChangePercent24H", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.Min)(1),
+    __metadata("design:type", Number)
+], GetMarketDataDto.prototype, "page", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.Min)(1),
+    __metadata("design:type", Number)
+], GetMarketDataDto.prototype, "limit", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, swagger_1.ApiProperty)({ required: false, enum: ['name', 'currentPrice', 'marketCap', 'high24h', 'low24h', 'priceChange24H', 'priceChangePercent24H'] }),
+    __metadata("design:type", String)
+], GetMarketDataDto.prototype, "orderBy", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsIn)(['asc', 'desc']),
+    (0, swagger_1.ApiProperty)({ required: false, enum: ['asc', 'desc'] }),
+    __metadata("design:type", String)
+], GetMarketDataDto.prototype, "orderDirection", void 0);
 //# sourceMappingURL=marketData.dto.js.map

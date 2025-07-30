@@ -27,8 +27,8 @@ export declare class TransactionService {
         user: {
             id: number;
             name: string;
-            password: string;
             createdAt: Date;
+            password: string;
         };
         asset: {
             symbol: string;
@@ -51,8 +51,8 @@ export declare class TransactionService {
         user: {
             id: number;
             name: string;
-            password: string;
             createdAt: Date;
+            password: string;
         };
         transactions: {
             id: number;

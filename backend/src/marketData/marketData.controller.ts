@@ -1,7 +1,7 @@
 import { Controller, Get, InternalServerErrorException, Param, Query } from '@nestjs/common';
 import { MarketDataService } from './marketData.service';
 import { ApiOkResponse } from '@nestjs/swagger';
-import { CreateMarketDataDto, FindAllMarketData } from './dto/marketData.dto';
+import { CreateMarketDataDto, GetMarketDataDto } from './dto/marketData.dto';
 
 @Controller('marketData')
 export class MarketDataController {
@@ -32,20 +32,8 @@ export class MarketDataController {
         }
     }
 
-    @Get(':ids')
-    @ApiOkResponse({
-        description: 'Success',
-        type: [CreateMarketDataDto],
-    })
-    findAll(@Query('ids') ids: []) {
-        try {
-            if (ids instanceof Array) {
-                return this.service.findAll(ids);
-            } else {
-                return this.service.findOne(ids);
-            }
-        } catch (error) {
-            throw new InternalServerErrorException('Unexpected error occurred');
-        }
+    @Get('market')
+    findAll(@Query() query: GetMarketDataDto) {
+        return this.service.findAll(query);
     }
 }

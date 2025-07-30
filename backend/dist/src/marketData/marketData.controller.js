@@ -38,18 +38,8 @@ let MarketDataController = class MarketDataController {
             throw new common_1.InternalServerErrorException('Unexpected error occurred');
         }
     }
-    findAll(ids) {
-        try {
-            if (ids instanceof Array) {
-                return this.service.findAll(ids);
-            }
-            else {
-                return this.service.findOne(ids);
-            }
-        }
-        catch (error) {
-            throw new common_1.InternalServerErrorException('Unexpected error occurred');
-        }
+    findAll(query) {
+        return this.service.findAll(query);
     }
 };
 exports.MarketDataController = MarketDataController;
@@ -73,14 +63,10 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MarketDataController.prototype, "sync", null);
 __decorate([
-    (0, common_1.Get)(':ids'),
-    (0, swagger_1.ApiOkResponse)({
-        description: 'Success',
-        type: [marketData_dto_1.CreateMarketDataDto],
-    }),
-    __param(0, (0, common_1.Query)('ids')),
+    (0, common_1.Get)('market'),
+    __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Array]),
+    __metadata("design:paramtypes", [marketData_dto_1.GetMarketDataDto]),
     __metadata("design:returntype", void 0)
 ], MarketDataController.prototype, "findAll", null);
 exports.MarketDataController = MarketDataController = __decorate([
