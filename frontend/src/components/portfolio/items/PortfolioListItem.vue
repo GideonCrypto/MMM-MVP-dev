@@ -1,32 +1,30 @@
 <template>
-    <li
-        class="list-item"
-    >
+    <li :class="['list-item', { 'type-buy': type === 'buy', 'type-sell': type === 'sell' }]" @click="$emit('click')">
         <VueCryptocurrencyIcons :name='name' width='25px'/>
-        <span>{{ name }}</span>
-        <span>{{ currentPrice }}</span>
-        <span>{{ totalValue }} / {{ totalCoins }}</span>
-        <span>{{ totalInvested }}</span>
-        <span>{{ profitLoss }}</span>
-        <span v-if="!totalTransactions">{{ type }}</span>
-        <span v-else>{{ totalTransactions }}</span>
-        <span>{{ portfoliosList }}</span>
+        <span :title="name">{{ name }}</span>
+        <span :title="currentPrice">{{ currentPrice }}</span>
+        <span :title="`${totalValue} / ${totalCoins}`">{{ totalValue }} / {{ totalCoins }}</span>
+        <span :title="totalInvested">{{ totalInvested }}</span>
+        <span :title="profitLoss">{{ profitLoss }}</span>
+        <span :title="type" v-if="!totalTransactions">{{ type }}</span>
+        <span :title="totalTransactions" v-else>{{ totalTransactions }}</span>
+        <span :title="portfoliosList">{{ portfoliosList }}</span>
     </li>
 </template>
 
 <script setup>
     defineProps({
         name: String,
-        currentPrice: String,
-        totalValue: String,
-        totalCoins: String,
-        totalInvested: String,
-        profitLoss: String,
-        totalTransactions: String,
+        currentPrice: Number,
+        totalValue: Number,
+        totalCoins: Number,
+        totalInvested: [Number, String],
+        profitLoss: Number,
+        totalTransactions: Number,
         portfoliosList: String,
         type: String,
     })
-    defineEmits(['select'])
+    defineEmits(['select', 'click'])
 </script>
 
 <style scoped>
@@ -35,6 +33,9 @@
         padding: 5px;
         place-items: center;
         text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .list-item :first-child {
@@ -44,5 +45,14 @@
 
     .list-item:hover {
         background-color: lightgray;
+        cursor: pointer;
+    }
+
+    .type-buy {
+        background-color: #e0f8e0;
+    }
+
+    .type-sell {
+        background-color: #f8e0e0;
     }
 </style>

@@ -34,6 +34,20 @@ export class MarketDataController {
 
     @Get('market')
     findAll(@Query() query: GetMarketDataDto) {
-        return this.service.findAll(query);
+        try {
+            return this.service.findAll(query);
+        } catch (error) {
+            throw new InternalServerErrorException('Unexpected error occurred');
+        }
     }
+
+    @Get('assetPrice')
+    getAssetPrices(@Query('names') names: string) {
+        try {
+            const assetList = names.split(',').map(name => name.trim());        
+            return this.service.getAssetPrices(assetList);
+        } catch (error) {
+            throw new InternalServerErrorException('Unexpected error occurred');
+        }
+    }   
 }

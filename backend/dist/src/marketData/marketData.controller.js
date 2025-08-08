@@ -39,7 +39,21 @@ let MarketDataController = class MarketDataController {
         }
     }
     findAll(query) {
-        return this.service.findAll(query);
+        try {
+            return this.service.findAll(query);
+        }
+        catch (error) {
+            throw new common_1.InternalServerErrorException('Unexpected error occurred');
+        }
+    }
+    getAssetPrices(names) {
+        try {
+            const assetList = names.split(',').map(name => name.trim());
+            return this.service.getAssetPrices(assetList);
+        }
+        catch (error) {
+            throw new common_1.InternalServerErrorException('Unexpected error occurred');
+        }
     }
 };
 exports.MarketDataController = MarketDataController;
@@ -69,6 +83,13 @@ __decorate([
     __metadata("design:paramtypes", [marketData_dto_1.GetMarketDataDto]),
     __metadata("design:returntype", void 0)
 ], MarketDataController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('assetPrice'),
+    __param(0, (0, common_1.Query)('names')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], MarketDataController.prototype, "getAssetPrices", null);
 exports.MarketDataController = MarketDataController = __decorate([
     (0, common_1.Controller)('marketData'),
     __metadata("design:paramtypes", [marketData_service_1.MarketDataService])

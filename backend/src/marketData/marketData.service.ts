@@ -147,4 +147,19 @@ export class MarketDataService {
             lastPage: Math.ceil(total / limit),
         };
     }
+
+    async getAssetPrices(names: string[]) {
+        const assetPrices = await this.prisma.marketData.findMany({
+            where: {
+                id: {
+                    in: names,
+                },
+            },
+        });
+
+        return assetPrices.map(asset => ({
+            assetName: asset.id,
+            currentPrice: asset.currentPrice,
+        }));
+    }
 }

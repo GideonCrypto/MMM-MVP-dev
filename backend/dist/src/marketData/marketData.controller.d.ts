@@ -38,4 +38,8 @@ export declare class MarketDataController {
         page: number;
         lastPage: number;
     }>;
+    getAssetPrices(names: string): Promise<{
+        assetName: string;
+        currentPrice: number | null;
+    }[]>;
 }

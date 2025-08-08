@@ -1,565 +1,369 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useAssetMetrics } from '../composable/useAssetMetrics'
+import { api } from '../components/api/api'
 
 export const useTransactionsStore = defineStore('useTransactionsStore', () => {
-    // 1. STATE
-    const allTransactions = ref([{ timestamp: 1718323200, type: 'buy', amount: 1000 },
-        { timestamp: 1718409600, type: 'buy', amount: 300 },
-        { timestamp: 1718496000, type: 'sell', amount: 200 },
-        { timestamp: 1718582400, type: 'buy', amount: 150 },
-        { timestamp: 1689292800, type: 'buy', amount: 700 },
-        { timestamp: 1690502400, type: 'sell', amount: 450 },
-        { timestamp: 1691625600, type: 'buy', amount: 200 },
-        { timestamp: 1692912000, type: 'buy', amount: 1200 },
-        { timestamp: 1694121600, type: 'sell', amount: 600 },
-        { timestamp: 1695408000, type: 'buy', amount: 900 },
-        { timestamp: 1696368000, type: 'sell', amount: 350 },
-        { timestamp: 1697587200, type: 'buy', amount: 1000 },
-        { timestamp: 1698700800, type: 'buy', amount: 400 },
-        { timestamp: 1699900800, type: 'sell', amount: 300 },
-        { timestamp: 1701187200, type: 'buy', amount: 800 },
-        { timestamp: 1702473600, type: 'buy', amount: 500 },
-        { timestamp: 1703760000, type: 'sell', amount: 200 },
-        { timestamp: 1705084800, type: 'buy', amount: 1000 },
-        { timestamp: 1609459200, type: 'buy', amount: 1200 },
-        { timestamp: 1577836800, type: 'sell', amount: 300 },
-        { timestamp: 1546300800, type: 'buy', amount: 450 },
-        { timestamp: 1514764800, type: 'buy', amount: 700 },
-        { timestamp: 1501545600, type: 'sell', amount: 500 },
-        { timestamp: 1491004800, type: 'buy', amount: 1000 },
-        { timestamp: 1517443200, type: 'sell', amount: 650 },
-        { timestamp: 1522540800, type: 'buy', amount: 900 },
-        { timestamp: 1530403200, type: 'sell', amount: 200 },
-        { timestamp: 1538352000, type: 'buy', amount: 750 },
-        { timestamp: 1543622400, type: 'buy', amount: 400 },
-        { timestamp: 1551398400, type: 'sell', amount: 550 },
-        { timestamp: 1561939200, type: 'buy', amount: 300 },
-        { timestamp: 1572393600, type: 'sell', amount: 250 },
-        { timestamp: 1580515200, type: 'buy', amount: 1100 },
-        { timestamp: 1588291200, type: 'sell', amount: 600 },
-        { timestamp: 1596240000, type: 'buy', amount: 1300 },
-        { timestamp: 1601510400, type: 'sell', amount: 500 },
-        { timestamp: 1612051200, type: 'buy', amount: 800 },
-        { timestamp: 1622505600, type: 'sell', amount: 1000 },
-        { timestamp: 1630454400, type: 'buy', amount: 600 },
-        { timestamp: 1640995200, type: 'sell', amount: 400 },
-        { timestamp: 1651449600, type: 'buy', amount: 900 },
-        { timestamp: 1661904000, type: 'sell', amount: 200 },
-        { timestamp: 1672444800, type: 'buy', amount: 300 },
-        { timestamp: 1682899200, type: 'sell', amount: 550 },
-        { timestamp: 1506816000, type: 'buy', amount: 750 },
-        { timestamp: 1496275200, type: 'sell', amount: 450 },
-        { timestamp: 1488326400, type: 'buy', amount: 1000 },
-        { timestamp: 1483228800, type: 'sell', amount: 350 },])//get by crud
-    const allAssets = ref([{
-            id: 1,
-            name: `bitcoin`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '9',
-            portfoliosList: 'text34'
-        },{
-            id: 2,
-            name: `monero`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '6',
-            portfoliosList: 'text'
-        },{
-            id: 3,
-            name: `starknet`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '3',
-            portfoliosList: 'text'
-        },{
-            id: 4,
-            name: `solana`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '2',
-            portfoliosList: 'text'
-        },{
-            id: 5,
-            name: `ethereum`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '87',
-            portfoliosList: 'text'
-        },{
-            id:6,
-            name: `tron`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '23',
-            portfoliosList: 'text'
-        },{
-            id: 7,
-            name: `cardano`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '13',
-            portfoliosList: 'text'
-        },{
-            id: 1,
-            name: `bitcoin`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '9',
-            portfoliosList: 'text34'
-        },{
-            id: 2,
-            name: `monero`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '6',
-            portfoliosList: 'text'
-        },{
-            id: 3,
-            name: `starknet`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '3',
-            portfoliosList: 'text'
-        },{
-            id: 4,
-            name: `solana`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '2',
-            portfoliosList: 'text'
-        },{
-            id: 5,
-            name: `ethereum`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '87',
-            portfoliosList: 'text'
-        },{
-            id:6,
-            name: `tron`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '23',
-            portfoliosList: 'text'
-        },{
-            id: 7,
-            name: `cardano`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '13',
-            portfoliosList: 'text'
-        },{
-            id: 5,
-            name: `ethereum`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '87',
-            portfoliosList: 'text'
-        },{
-            id:6,
-            name: `tron`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '23',
-            portfoliosList: 'text'
-        },{
-            id: 7,
-            name: `cardano`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '13',
-            portfoliosList: 'text'
-        },{
-            id: 1,
-            name: `bitcoin`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '9',
-            portfoliosList: 'text34'
-        },{
-            id: 2,
-            name: `monero`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '6',
-            portfoliosList: 'text'
-        },{
-            id: 3,
-            name: `starknet`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '3',
-            portfoliosList: 'text'
-        },{
-            id: 4,
-            name: `solana`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '2',
-            portfoliosList: 'text'
-        },{
-            id: 5,
-            name: `ethereum`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '87',
-            portfoliosList: 'text'
-        },{
-            id:6,
-            name: `tron`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '23',
-            portfoliosList: 'text'
-        },{
-            id: 7,
-            name: `cardano`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '13',
-            portfoliosList: 'text'
-        },{
-            id: 1,
-            name: `bitcoin`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '9',
-            portfoliosList: 'text34'
-        },{
-            id: 2,
-            name: `monero`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '6',
-            portfoliosList: 'text'
-        },{
-            id: 3,
-            name: `starknet`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '3',
-            portfoliosList: 'text'
-        },{
-            id: 4,
-            name: `solana`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '2',
-            portfoliosList: 'text'
-        },{
-            id: 5,
-            name: `ethereum`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '87',
-            portfoliosList: 'text'
-        },{
-            id:6,
-            name: `tron`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '23',
-            portfoliosList: 'text'
-        },{
-            id: 7,
-            name: `cardano`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '13',
-            portfoliosList: 'text'
-        },{
-            id: 5,
-            name: `ethereum`,
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            totalTransactions: '87',
-            portfoliosList: 'text'
-        }])//get by crud
-    const selectedAsset = ref({})//get by click in table
-    
-    const assetTransactions = ref([
-        {
-            id: 1,
-            name: 'bitcoin',
-            price: 10500,
-            quantity: 0.5,
-            // totalTransactions: 'buy',
-            portfolio: 'main',
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            type: 'buy',
-        },
-        {
-            id: 2,
-            name: 'bitcoin',
-            price: 11000,
-            quantity: 0.3,
-            // totalTransactions: 'buy',
-            portfolio: 'main',
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            type: 'buy',
-        },
-        {
-            id: 3,
-            name: 'bitcoin',
-            price: 11500,
-            quantity: 0.2,
-            // totalTransactions: 'sell',
-            portfolio: 'main',
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            type: 'sell',
-        },
-        {
-            id: 4,
-            name: 'bitcoin',
-            price: 10800,
-            quantity: 0.4,
-            // totalTransactions: 'buy',
-            portfolio: 'main',
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            type: 'buy',
-        },
-        {
-            id: 5,
-            name: 'bitcoin',
-            price: 12000,
-            quantity: 0.1,
-            // totalTransactions: 'sell',
-            portfolio: 'main',
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            type: 'sell',
-        },
-        {
-            id: 6,
-            name: 'bitcoin',
-            price: 9500,
-            quantity: 0.6,
-            // totalTransactions: 'buy',
-            portfolio: 'main',
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            type: 'buy',
-        },
-        {
-            id: 7,
-            name: 'bitcoin',
-            price: 9900,
-            quantity: 0.25,
-            // totalTransactions: 'buy',
-            portfolio: 'main',
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            type: 'buy',
-        },
-        {
-            id: 8,
-            name: 'bitcoin',
-            price: 10200,
-            quantity: 0.3,
-            // totalTransactions: 'sell',
-            portfolio: 'main',
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            type: 'sell',
-        },
-        {
-            id: 9,
-            name: 'bitcoin',
-            price: 9800,
-            quantity: 0.7,
-            // totalTransactions: 'buy',
-            portfolio: 'main',
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            type: 'buy',
-        },
-        {
-            id: 10,
-            name: 'bitcoin',
-            price: 10100,
-            quantity: 0.15,
-            // totalTransactions: 'buy',
-            portfolio: 'main',
-            currentPrice: '112000',
-            totalValue: '29',
-            totalCoins: '200',
-            totalInvested: '29000',
-            profitLoss: '-29',
-            type: 'buy',
-        }
-        ]
-    )
-    // const assetTransactionsMoc = ref([
-    //     { id: 1, name: 'bitcoin', price: 10, quantity: 1, type: 'buy', portfolio: 'main' },
-    //     { id: 2, name: 'bitcoin', price: 11, quantity: 1, type: 'buy', portfolio: 'main' },
-    //     { id: 3, name: 'bitcoin', price: 11, quantity: 1, type: 'sell', portfolio: 'main' },
-    //     { id: 4, name: 'bitcoin', price: 10, quantity: 1, type: 'buy', portfolio: 'main' },
-    //     { id: 5, name: 'bitcoin', price: 12, quantity: 1, type: 'sell', portfolio: 'main' },
-    //     { id: 6, name: 'bitcoin', price: 9, quantity: 1, type: 'buy', portfolio: 'main' },
-    //     { id: 7, name: 'bitcoin', price: 9, quantity: 1, type: 'buy', portfolio: 'main' },
-    //     { id: 8, name: 'bitcoin', price: 10, quantity: 1, type: 'sell', portfolio: 'main' },
-    //     { id: 9, name: 'bitcoin', price: 9, quantity: 1, type: 'buy', portfolio: 'main' },
-    //     { id: 10, name: 'bitcoin', price: 10, quantity: 1, type: 'buy', portfolio: 'main' },
-    // ])
+  const round3 = (num: number) => Math.round(num * 1000) / 1000// round func for 3 sighns
 
-    // const assetAnalitics = ref({})//create from others
-    const currentPrice = ref(10500) 
+  // -------------------------------state
+  const portfolioNames = ref([])
+  const allAssets = ref([])
+  const allTransactions = ref([])
 
-    function addAsset (asset: object) {
-        selectedAsset.value = asset
+  const selectedAsset = ref(null)
+  const assetTransactions = ref([])
+  const selectedAssetTransactionsFormatted = ref([])
+
+  const currentPrice = ref(0)
+  const selectedTransaction = ref(null)
+
+  const portfolioFilter = ref('all')
+  const sortKey = ref('')
+  const sortAsc = ref(true)
+
+  //--------------------------------derived
+  const portfolioMap = computed(() => {
+    const map = new Map()
+    portfolioNames.value.forEach(p => map.set(p.id, p.name))
+    return map
+  })
+
+  // metrics current asset+portfolio
+  const filteredFormattedAssetTransactions = computed(() => {
+    const portfolioName = portfolioMap.value.get(Number(portfolioFilter.value))
+
+    return assetTransactions.value
+      .filter(tx => portfolioFilter.value === 'all' || tx.portfolio === portfolioName)
+      .map(tx => ({
+        ...tx,
+        // round for view
+        quantity: round3(tx.totalCoins),
+      }))
+  })
+
+  const metrics = computed(() =>
+    useAssetMetrics(filteredFormattedAssetTransactions.value, currentPrice.value)
+  )
+
+  // filters/sort
+  const filteredSortedAssets = computed(() => {
+    let filtered = allAssets.value
+
+    if (portfolioFilter.value !== 'all') {
+      filtered = filtered.filter(asset =>
+        asset.portfoliosList.includes(portfolioMap.value.get(Number(portfolioFilter.value)))
+      )
     }
 
-     // 🧠 Компьютед: Автоматически рассчитывает метрики
-    const metrics = computed(() => {
-        return useAssetMetrics(assetTransactions.value, currentPrice.value)
-    })
-
-    // 🛠 Методы (если нужно обновлять транзакции или цену)
-    function setTransactions(newTransactions: typeof assetTransactions.value) {
-        assetTransactions.value = newTransactions
+    if (sortKey.value) {
+      filtered = [...filtered].sort((a, b) => {
+        const aVal = a[sortKey.value]
+        const bVal = b[sortKey.value]
+        return sortAsc.value
+          ? aVal > bVal ? 1 : -1
+          : aVal < bVal ? 1 : -1
+      })
     }
 
-    function setCurrentPrice(price: number) {
-        currentPrice.value = price
+    return filtered
+  })
+
+  // filter/sort current asset
+  const filteredSortedTransactions = computed(() => {
+    let filtered = assetTransactions.value
+
+    if (portfolioFilter.value !== 'all') {
+      const portfolioName = portfolioMap.value.get(Number(portfolioFilter.value))
+      filtered = filtered.filter(tx => tx.portfolio === portfolioName)
     }
-    
-    return {
-        allTransactions,
-        allAssets,
-        selectedAsset,
-        assetTransactions,
-        addAsset,
-        metrics,
-        setTransactions,
-        setCurrentPrice,
+
+    if (sortKey.value) {
+      filtered = [...filtered].sort((a, b) => {
+        const aVal = a[sortKey.value]
+        const bVal = b[sortKey.value]
+        return sortAsc.value
+          ? aVal > bVal ? 1 : -1
+          : aVal < bVal ? 1 : -1
+      })
     }
+
+    return filtered
+  })
+
+  // filter all transactions by portfolio
+  const filteredAllTransactions = computed(() => {
+    if (portfolioFilter.value === 'all') return allTransactions.value
+
+    const portfolioName = portfolioMap.value.get(Number(portfolioFilter.value))
+    return allTransactions.value.filter(tx => tx.portfolio === portfolioName)
+  })
+
+  // --------------------------API
+  async function getPortfolios() {
+    try {
+      const response = await api.get('portfolioData/portfolio/6')
+      portfolioNames.value = [...response.data]
+    } catch (error) {
+      console.error('Get portfolio names error:', error.message)
+    }
+  }
+
+  async function getData() {
+    try {
+      const response = await api.get('transactionData/getAssets/6')
+      const assets = response.data
+
+      allAssets.value = []
+      allTransactions.value = []
+
+      const assetIds = assets.map(asset => asset.id)
+
+      const priceResponse = await api.get('marketData/assetPrice', {
+        params: {
+          names: assetIds.join(','),
+        },
+      })
+
+      const pricesMap = new Map(
+        priceResponse.data.map(p => [p.assetName, p.currentPrice])
+      )
+
+      assets.forEach(asset => {
+        if (!asset.transactions?.length) return
+
+        const portfoliosSet = new Set()
+        const formattedTransactions = []
+        const currentPriceLocal = round3(Number(pricesMap.get(asset.name)) || 0)
+
+        // FIFO queue
+        const buyQueue = []
+
+        asset.transactions.forEach(tx => {
+          const quantity = Number(tx.quantity) // no round
+          const price = round3(Number(tx.price))
+          const totalTxValue = round3(quantity * price)
+
+          const dateObj = new Date(tx.timestamp)
+          const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}.${String(dateObj.getMonth() + 1).padStart(2, '0')}.${dateObj.getFullYear()}`
+          const portfolioName = portfolioMap.value.get(tx.portfolioId) ?? ''
+
+          let txProfitLoss = 0
+
+          if (tx.type === 'buy') {
+            // unrealised profit by current price
+            txProfitLoss = round3((currentPriceLocal - price) * quantity)
+            buyQueue.push({ price, quantity })
+          } else if (tx.type === 'sell') {
+            let sellQty = quantity
+            let realized = 0
+
+            while (sellQty > 0 && buyQueue.length > 0) {
+              const lot = buyQueue[0]
+              const qtyUsed = Math.min(lot.quantity, sellQty)
+              realized += round3((price - lot.price) * qtyUsed)
+              lot.quantity = round3(lot.quantity - qtyUsed)
+              sellQty = round3(sellQty - qtyUsed)
+
+              if (lot.quantity === 0) {
+                buyQueue.shift()
+              }
+            }
+
+            if (sellQty > 0) {
+              realized += round3(sellQty * price)
+            }
+
+            txProfitLoss = round3(realized)
+          }
+
+          formattedTransactions.push({
+            id: tx.id,
+            name: asset.name,
+            price,
+            totalValue: totalTxValue,
+            totalCoins: quantity,
+            date: formattedDate,
+            portfolio: portfolioName,
+            type: tx.type,
+            profitLoss: txProfitLoss,
+            currentPrice: currentPriceLocal,
+          })
+
+          allTransactions.value.push({
+            id: tx.id,
+            assetName: asset.name,
+            portfolio: portfolioName,
+            timestamp: Math.floor(new Date(tx.timestamp).getTime() / 1000),
+            type: tx.type,
+            amount: totalTxValue,
+            coins: quantity,
+          })
+
+          if (portfolioName) portfoliosSet.add(portfolioName)
+        })
+
+        const assetMetrics = useAssetMetrics(
+          formattedTransactions.map(tx => ({
+            price: tx.price,
+            quantity: tx.totalCoins,
+            type: tx.type,
+            portfolio: tx.portfolio,
+            id: tx.id,
+            name: tx.name,
+          })),
+          currentPriceLocal
+        )
+
+        allAssets.value.push({
+          id: asset.id,
+          name: asset.name,
+          currentPrice: currentPriceLocal,
+          totalValue: round3(assetMetrics.currentValue),
+          totalCoins: round3(assetMetrics.remainingCoins),
+          totalInvested: round3(assetMetrics.totalInvested),
+          profitLoss: round3(assetMetrics.totalProfit),
+          totalTransactions: asset.transactions.length,
+          portfoliosList: Array.from(portfoliosSet).join(', '),
+          transactions: formattedTransactions,
+        })
+      })
+    } catch (error) {
+      console.error('Ошибка при получении данных:', error)
+    }
+  }
+
+  //-----------------------------watchers
+  // watch for choose assets and portfolio
+  watch([selectedAsset, portfolioFilter], ([newAsset, currentFilter]) => {
+    if (!newAsset) {
+      assetTransactions.value = []
+      currentPrice.value = 0
+      selectedAssetTransactionsFormatted.value = []
+      return
+    }
+
+    currentPrice.value = newAsset.currentPrice || 0
+
+    const portfolioName = portfolioMap.value.get(Number(currentFilter))
+    const allTx = newAsset.transactions || []
+
+    const filteredTx =
+      currentFilter === 'all'
+        ? allTx
+        : allTx.filter(tx => tx.portfolio === portfolioName)
+
+    assetTransactions.value = filteredTx
+
+    const baseFormatted = filteredTx.map(tx => ({
+      timestamp: Math.floor(
+        new Date(tx.date.split('.').reverse().join('-')).getTime() / 1000
+      ),
+      type: tx.type,
+      amount: round3(tx.totalValue),
+      coins: tx.totalCoins,
+    }))
+
+    const now = Math.floor(Date.now() / 1000)
+    const currentValue = round3((newAsset.totalCoins || 0) * (newAsset.currentPrice || 0))
+
+    const withCurrentPoint = [
+      ...baseFormatted,
+      {
+        timestamp: now,
+        type: 'current',
+        amount: currentValue,
+        coins: newAsset.totalCoins || 0,
+        isCurrent: true,
+      },
+    ]
+
+    selectedAssetTransactionsFormatted.value = withCurrentPoint
+  },
+    { immediate: true }
+  )
+
+  //--------------------------- actions
+  function addAsset(asset) {
+    selectedAsset.value = asset
+  }
+
+  function selectTransaction(transaction) {
+    selectedTransaction.value = transaction
+  }
+
+  function setTransactions(newTransactions) {
+    assetTransactions.value = newTransactions
+  }
+
+  function setPortfolioFilter(id) {
+    portfolioFilter.value = id
+  }
+
+  function setSorting(key) {
+    if (sortKey.value === key) {
+      sortAsc.value = !sortAsc.value
+    } else {
+      sortKey.value = key
+      sortAsc.value = true
+    }
+  }
+
+  function setCurrentPrice(price) {
+    currentPrice.value = price
+  }
+
+  function setAllTransactionsFromAsset(asset) {
+    if (!asset || !asset.transactions) return
+
+    const baseFormatted = asset.transactions.map(tx => ({
+      timestamp: Math.floor(new Date(tx.date.split('.').reverse().join('-')).getTime() / 1000),
+      type: tx.type,
+      amount: round3(tx.totalValue),
+      coins: tx.totalCoins,
+    }))
+
+    const now = Math.floor(Date.now() / 1000)
+    const currentValue = round3((asset.totalCoins || 0) * (asset.currentPrice || 0))
+
+    const withCurrentPoint = [
+      ...baseFormatted,
+      {
+        timestamp: now,
+        type: 'current',
+        amount: currentValue,
+        coins: asset.totalCoins || 0,
+        isCurrent: true,
+      },
+    ]
+
+    selectedAssetTransactionsFormatted.value = withCurrentPoint
+  }
+
+  return {
+    // State
+    portfolioNames,
+    allAssets,
+    allTransactions,
+    selectedAsset,
+    assetTransactions,
+    currentPrice,
+    selectedTransaction,
+    selectedAssetTransactionsFormatted,
+    // Derived
+    metrics,
+    filteredSortedAssets,
+    filteredSortedTransactions,
+    filteredAllTransactions,
+    // Actions
+    getPortfolios,
+    getData,
+    addAsset,
+    selectTransaction,
+    setTransactions,
+    setAllTransactionsFromAsset,
+    setPortfolioFilter,
+    setSorting,
+    setCurrentPrice,
+  }
 })

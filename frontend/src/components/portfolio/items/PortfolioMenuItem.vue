@@ -7,10 +7,11 @@
             <button @click="onRemovePortfolio()">delete portfolio</button>
             <div>
                 <h5>Chose portfolio to view: </h5>
-                <select>
-                    <option value="option1">All</option>
-                    <option value="option2">Test</option>
-                    <option value="option3">Main</option>
+                <select v-model="selectedPortfolioId" @change="filterAssetsByPortfolio">
+                    <option value="all">All</option>
+                    <option v-for="name in portfolioNames" :key="name.id" :value="name.id">
+                        {{ name.name }}
+                    </option>
                 </select>
             </div>
         </div>
@@ -25,16 +26,32 @@
 <script setup>
     import { usePageToggler } from '@/store/usePageToggler.ts'
     import { storeToRefs } from 'pinia'
-    import { computed } from 'vue'
+    import { computed, onMounted, ref } from 'vue'
+    import { api } from '@/components/api/api.ts'
     import AddPortfolioMenu from '@/components/portfolio/items/AddPortfolioModal.vue'
+    import { useTransactionsStore } from '@/store/useTransactionsStore.ts'
+    const selectedPortfolioId = ref('all')
 
+    // ----------------------------------store
+    // ----------- transactions
+    const { portfolioNames } = storeToRefs(useTransactionsStore())
+
+    const TransactionsStore = useTransactionsStore()
+    
+    function onFilterChange(e) {
+        TransactionsStore.setPortfolioFilter(e.target.value)
+    }
+    function filterAssetsByPortfolio() {
+        TransactionsStore.setPortfolioFilter(selectedPortfolioId.value)
+    }
+    // ------------ toggler
     const toggler = usePageToggler()
     const { toggle, toggleAddPortfolio, toggleRemovePortfolio } = storeToRefs(toggler)
 
     const isToggled = computed(() => toggle.value)
     const isToggleAddPortfolio = computed(() => toggleAddPortfolio.value)
     const isToggleRemovePortfolio = computed(() => toggleRemovePortfolio.value)
-
+    // ----------------------------------
     function onSelect(item) {
         toggler.toggleCount()
     }

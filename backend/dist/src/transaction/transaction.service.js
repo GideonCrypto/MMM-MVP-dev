@@ -37,6 +37,7 @@ let TransactionService = class TransactionService {
                 price: transaction.price,
                 timestamp: new Date(transaction.timestamp),
                 userId: transaction.userId,
+                portfolioId: transaction.portfolioId,
             },
         });
         return res;
@@ -52,6 +53,7 @@ let TransactionService = class TransactionService {
                 quantity: data.quantity,
                 price: data.price,
                 timestamp: new Date(data.timestamp),
+                portfolioId: data.portfolioId,
             },
         });
         return transaction;

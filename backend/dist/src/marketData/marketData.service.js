@@ -140,6 +140,19 @@ let MarketDataService = class MarketDataService {
             lastPage: Math.ceil(total / limit),
         };
     }
+    async getAssetPrices(names) {
+        const assetPrices = await this.prisma.marketData.findMany({
+            where: {
+                id: {
+                    in: names,
+                },
+            },
+        });
+        return assetPrices.map(asset => ({
+            assetName: asset.id,
+            currentPrice: asset.currentPrice,
+        }));
+    }
 };
 exports.MarketDataService = MarketDataService;
 exports.MarketDataService = MarketDataService = __decorate([

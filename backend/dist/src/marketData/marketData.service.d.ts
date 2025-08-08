@@ -41,4 +41,8 @@ export declare class MarketDataService {
         page: number;
         lastPage: number;
     }>;
+    getAssetPrices(names: string[]): Promise<{
+        assetName: string;
+        currentPrice: number | null;
+    }[]>;
 }

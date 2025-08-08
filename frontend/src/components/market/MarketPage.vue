@@ -83,8 +83,6 @@
     const toggler = usePageToggler()
     const { toggleSyncMarket, toggleCountSyncMarket } = storeToRefs(toggler)
 
-    
-
     async function loadDataSync() {        
         try {
             toggleSyncMarket.value = true
