@@ -36,7 +36,6 @@
             <template v-else>
                 <ul class="list-container">
                     <li class="list-item sorting">
-                        <span>logo</span>
                         <span @click="sortBy('name')">name</span>
                         <span @click="sortBy('currentPrice')">current price</span>
                         <span @click="sortBy('marketCap')">market cap</span>
@@ -230,8 +229,9 @@
 
     .list-item {
         display: grid;
-        grid-template-columns: repeat(8, 1fr);
+        grid-template-columns: repeat(7, 1fr);
         border-bottom: 2px solid black;
+        
     }
 
     span {
@@ -240,6 +240,7 @@
         padding: 2px;
         place-items: center;
         text-align: center;
+        
     }
 
     .list-item :first-child {

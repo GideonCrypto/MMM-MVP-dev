@@ -1,6 +1,5 @@
 <template>
     <li :class="['list-item', { 'type-buy': type === 'buy', 'type-sell': type === 'sell' }]" @click="$emit('click')">
-        <VueCryptocurrencyIcons :name='name' width='25px'/>
         <span :title="name">{{ name }}</span>
         <span :title="currentPrice">{{ currentPrice }}</span>
         <span :title="`${totalValue} / ${totalCoins}`">{{ totalValue }} / {{ totalCoins }}</span>
@@ -29,13 +28,14 @@
 
 <style scoped>
     span {
+        max-width: 100%;
         border-left: 2px solid #000;
         padding: 5px;
         place-items: center;
         text-align: center;
-        white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .list-item :first-child {

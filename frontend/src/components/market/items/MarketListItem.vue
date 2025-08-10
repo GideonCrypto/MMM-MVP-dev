@@ -1,7 +1,6 @@
 <template>
     <li class="list-item" :class="{ 'empty-item': isEmpty }">
         <template v-if="!isEmpty">
-            <span><VueCryptocurrencyIcons :name="name" width="25px" /></span>
             <span :title="name">{{ name }}</span>
             <span :title="currentPrice">{{ currentPrice }}</span>
             <span :title="marketCap">{{ marketCap }}</span>
@@ -33,19 +32,25 @@
 
 <style scoped>
     span {
-        display: block;
+        display: flex;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         min-width: 0;
         padding: 4px;
         text-align: center;
+        height: 100%;
+        margin: auto 0;
         border-left: 2px solid #000;
+        overflow-wrap: break-word;
+        white-space: normal;
+        justify-content: center;
+        align-items: center;
     }
 
     .list-item {
         display: grid;
-        grid-template-columns: repeat(8, minmax(0, 1fr));
+        grid-template-columns: repeat(7, minmax(0, 1fr));
         font-size: 15px;
     }
 

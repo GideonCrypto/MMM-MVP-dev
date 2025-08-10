@@ -32,7 +32,6 @@
         <div ref="scrollContainer" class="bot-container" @scroll="handleScroll">
             <ul class="list-container" v-if="!isToggled">
                 <li class="list-item sorting">
-                    <span>logo</span>
                     <span @click="sortBy('name')" class="clickable">name</span>
                     <span @click="sortBy('currentPrice')" class="clickable">current price</span>
                     <span @click="sortBy('totalValue')" class="clickable">total value/total coins</span>
@@ -57,7 +56,6 @@
             </ul>
             <ul class="list-container" v-else>
                 <li class="list-item sorting">
-                    <span>logo</span>
                     <span @click="sortBy('name')" class="clickable">name</span>
                     <span @click="sortBy('price')" class="clickable">price</span>
                     <span @click="sortBy('totalValue')" class="clickable">total value/total coins</span>
@@ -213,7 +211,7 @@
 
     .list-item {
         display: grid;
-        grid-template-columns: repeat(8, minmax(0, 1fr));
+        grid-template-columns: repeat(7, minmax(0, 1fr));
         border-bottom: 2px solid black;
     }
 

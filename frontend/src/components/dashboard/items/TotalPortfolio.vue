@@ -1,90 +1,100 @@
 <template>
-    <div class="portfolio-container">
-        <h4>Total portfolio value {{ totalValue.toLocaleString() }} $</h4>
-        <Bar :data="chartData" :options="chartOptions" />
-    </div>
+  <div v-if="isPortfolioReady" class="portfolio-container">
+    <h4>Total assets value {{ totalValue.toLocaleString() }} $</h4>
+    <Bar :key="chartKey" :data="chartData" :options="chartOptions" />
+  </div>
+  <div v-else>Loading portfolio...</div>
 </template>
 
 <script setup>
-    import { ref, computed } from 'vue'
-    import { Bar } from 'vue-chartjs'
-    import {
-        Chart as ChartJS,
-        BarElement,
-        Tooltip,
-        Legend,
-        Title,
-        CategoryScale,
-        LinearScale,
-    } from 'chart.js'
+import { computed, ref, watch } from 'vue'
+import { Bar } from 'vue-chartjs'
+import {
+  Chart as ChartJS,
+  BarElement,
+  Tooltip,
+  Legend,
+  Title,
+  CategoryScale,
+  LinearScale,
+} from 'chart.js'
+import { useTransactionsStore } from '@/store/useTransactionsStore.ts'
+import { storeToRefs } from 'pinia'
 
-    ChartJS.register(BarElement, Tooltip, Legend, Title, CategoryScale, LinearScale)
+ChartJS.register(BarElement, Tooltip, Legend, Title, CategoryScale, LinearScale)
 
-    const portfolio = ref([
-        { name: 'Bitcoin', value: 5000 },
-        { name: 'Ethereum', value: 3000 },
-        { name: 'Solana', value: 2000 },
-        { name: 'Cardano', value: 1000 },
-        { name: 'Polkadot', value: 800 },
-        { name: 'Other Coin', value: 200 },
-    ])
+const store = useTransactionsStore()
+const { portfolio } = storeToRefs(store)
 
-    const topAssets = computed(() => {
-        const sorted = [...portfolio.value].sort((a, b) => b.value - a.value)
-        const top = sorted.slice(0, 5)
-        const others = sorted.slice(5)
-        const otherSum = others.reduce((acc, cur) => acc + cur.value, 0)
-        if (otherSum > 0) {
-            top.push({ name: 'Other', value: otherSum })
-        }
-        return top
-    })
+const isPortfolioReady = computed(() =>
+  Array.isArray(portfolio.value) && portfolio.value.length > 0
+)
 
-    function generateColors(n) {
-        return Array.from({ length: n }, () =>
-            `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`
-        )
+const totalValue = computed(() =>
+  isPortfolioReady.value
+    ? portfolio.value.reduce((sum, item) => sum + item.value, 0)
+    : 0
+)
+
+function generateColors(n) {
+  return Array.from({ length: n }, () =>
+    `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`
+  )
+}
+
+const chartKey = ref(0)
+
+const chartData = computed(() => {
+  if (!portfolio.value || portfolio.value.length === 0) {
+    return {
+      labels: [],
+      datasets: [],
     }
+  }
 
-    const chartData = computed(() => {
-        const labels = topAssets.value.map(a => a.name)
-        const data = topAssets.value.map(a => a.value)
-        const backgroundColors = generateColors(labels.length)
+  const labels = portfolio.value.map(item => item.name)
+  const data = portfolio.value.map(item => item.value)
+  const backgroundColors = generateColors(labels.length)
 
-        return {
-            labels,
-            datasets: [
-            {
-                label: 'Portfolio Value ($)',
-                data,
-                backgroundColor: backgroundColors,
-                borderWidth: 1,
-            },
-            ],
-        }
-    })
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'Portfolio Value ($)',
+        data,
+        backgroundColor: backgroundColors,
+        borderWidth: 1,
+      },
+    ],
+  }
+})
 
-    const totalValue = computed(() =>
-        portfolio.value.reduce((sum, item) => sum + item.value, 0)
-    )
 
-    const chartOptions = {
-        responsive: true,
-        plugins: {
-            legend: {
-                display: false,
-            },
-            tooltip: {
-                callbacks: {
-                    label: (context) => {
-                    const label = context.label || ''
-                    const value = context.parsed.y
-                    return `${label}: $ ${value.toLocaleString()}`
-                    },
-                },
-            }
+watch(
+  portfolio,
+  () => {
+    chartKey.value++
+  },
+  { deep: true } // <- глубоко смотрим изменения массива/объектов внутри
+)
+
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    tooltip: {
+      callbacks: {
+        label: (context) => {
+          const label = context.label || ''
+          const value = context.parsed.y
+          return `${label}: $${value.toLocaleString()}`
         },
-    }
+      },
+    },
+  },
+}
 </script>
 
 <style scoped>

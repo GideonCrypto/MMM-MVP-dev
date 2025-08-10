@@ -14,6 +14,8 @@ export const useTransactionsStore = defineStore('useTransactionsStore', () => {
   const selectedAsset = ref(null)
   const assetTransactions = ref([])
   const selectedAssetTransactionsFormatted = ref([])
+  const topProfitableAssets = ref([])
+  const portfolio = ref([])
 
   const currentPrice = ref(0)
   const selectedTransaction = ref(null)
@@ -98,6 +100,34 @@ export const useTransactionsStore = defineStore('useTransactionsStore', () => {
     const portfolioName = portfolioMap.value.get(Number(portfolioFilter.value))
     return allTransactions.value.filter(tx => tx.portfolio === portfolioName)
   })
+
+  function updateTopProfitableAssets() {
+    const sorted = [...allAssets.value].sort((a, b) => b.profitLoss - a.profitLoss)
+    topProfitableAssets.value = sorted.slice(0, 5)
+  }
+
+  function updatePortfolioDistribution() {
+    const sorted = [...allAssets.value].sort((a, b) => b.profitLoss - a.profitLoss)
+    const top5 = sorted.slice(0, 5)
+    const others = sorted.slice(5)
+
+    const topItems = top5.map(asset => ({
+      name: asset.name,
+      value: asset.totalValue,
+    }))
+
+    const otherValue = others.reduce((sum, asset) => sum + asset.totalValue, 0)
+
+    if (otherValue > 0) {
+      topItems.push({
+        name: 'Other Coin',
+        value: Math.round(otherValue * 1000) / 1000,
+      })
+    }
+
+    portfolio.value = topItems
+  }
+
 
   // --------------------------API
   async function getPortfolios() {
@@ -228,8 +258,10 @@ export const useTransactionsStore = defineStore('useTransactionsStore', () => {
           transactions: formattedTransactions,
         })
       })
+      updateTopProfitableAssets()
+      updatePortfolioDistribution()
     } catch (error) {
-      console.error('Ошибка при получении данных:', error)
+      console.error('Error during get data:', error)
     }
   }
 
@@ -350,6 +382,8 @@ export const useTransactionsStore = defineStore('useTransactionsStore', () => {
     currentPrice,
     selectedTransaction,
     selectedAssetTransactionsFormatted,
+    topProfitableAssets,
+    portfolio,
     // Derived
     metrics,
     filteredSortedAssets,
@@ -365,5 +399,7 @@ export const useTransactionsStore = defineStore('useTransactionsStore', () => {
     setPortfolioFilter,
     setSorting,
     setCurrentPrice,
+    updateTopProfitableAssets,
+    updatePortfolioDistribution,
   }
 })
