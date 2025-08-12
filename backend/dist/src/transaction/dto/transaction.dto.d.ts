@@ -1,6 +1,8 @@
 export declare class AddTransactionDto {
     type: string;
     assetId: string;
+    name: string;
+    marketId: string;
     quantity: number;
     price: number;
     timestamp: string;

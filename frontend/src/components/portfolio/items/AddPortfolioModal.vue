@@ -43,6 +43,12 @@
     import { computed } from 'vue'
     import { api } from '@/components/api/api.ts'
     import { useTransactionsStore } from '@/store/useTransactionsStore.ts'
+    import { useLoginStore } from '@/store/useLoginStore.ts'
+
+    // ----------------------------------login store
+    const loginStore = useLoginStore()
+    const { userLS } = storeToRefs(loginStore)
+    // ----------------------------------
 
     // ----------------------------------store
     const transactionsStore = useTransactionsStore()
@@ -104,13 +110,14 @@
         const isoDate = new Date(form.value.date).toISOString();
         const data = {
             ...form.value,
-            date: isoDate
+            date: isoDate,
+            userId: Number(userLS.value.id)
         }
         try {
             const response = await api.post('portfolioData/createPortfolio', {
                 name: data.name,
                 createdAt: data.date,
-                userId: 6
+                userId: data.userId
             })
         } catch (error) {
             console.error('Create portfolio error: ' + error.message)

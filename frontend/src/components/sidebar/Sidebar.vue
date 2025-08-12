@@ -27,6 +27,9 @@
                 :text="toggle.text"
             />
         </div>
+        <div class="sidebar-item-container">
+            <button class="db-btn log-out-btn" @click="logOut">Log Out</button>
+        </div>
     </div>
 </template>
 
@@ -36,7 +39,14 @@
     import ListItem from '@/ui/common/NavListItem.vue'
     import { useRoute } from 'vue-router'
     import { api } from '@/components/api/api.ts'
+    import { useLoginStore } from '@/store/useLoginStore.ts'
+    import { storeToRefs } from "pinia";
 
+    // ---------------------store
+    const store = useLoginStore()
+    const { removeUserFromLS } = store
+    // ---------------------
+    // ---------------------common
     const toggles = ref([
         { id: 0, model: ref(false), text: { first: 'Dark', second: 'Light' } },
         { id: 1, model: ref(true), text: { first: 'Ru', second: 'En' } }
@@ -53,9 +63,10 @@
 
     const activePath = computed(() => route.path)
 
+    // --------------------- DB
     const loading = ref(true)
     const error = ref(null)
-
+    
     const importDB = async () => {
         loading.value = true
         error.value = null
@@ -81,6 +92,14 @@
             loading.value = false
         }
     }
+
+    // ---------------------
+    // --------------------- Log out
+    const logOut = () => {
+        removeUserFromLS()//log out (rm user from LS)
+        window.location.href = '/'//reload app and move too dashboard
+    }
+    // ---------------------
 </script>
 
 <style scoped>
@@ -130,5 +149,9 @@
 
     .db-btn:hover {
         background-color: #222;
+    }
+
+    .log-out-btn {
+        width: 165px;
     }
 </style>

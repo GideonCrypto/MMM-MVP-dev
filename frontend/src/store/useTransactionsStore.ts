@@ -1,11 +1,14 @@
-import { defineStore } from 'pinia'
+import { defineStore, storeToRefs } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { useAssetMetrics } from '../composable/useAssetMetrics'
 import { api } from '../components/api/api'
+import { useLoginStore } from '@/store/useLoginStore.ts'
 
 export const useTransactionsStore = defineStore('useTransactionsStore', () => {
   const round3 = (num: number) => Math.round(num * 1000) / 1000// round func for 3 sighns
-
+  // -------------------------------login store
+  const loginStore = useLoginStore()
+  const { userLS } = storeToRefs(loginStore)
   // -------------------------------state
   const portfolioNames = ref([])
   const allAssets = ref([])
@@ -128,11 +131,10 @@ export const useTransactionsStore = defineStore('useTransactionsStore', () => {
     portfolio.value = topItems
   }
 
-
   // --------------------------API
   async function getPortfolios() {
     try {
-      const response = await api.get('portfolioData/portfolio/6')
+      const response = await api.get(`portfolioData/portfolio/${userLS.value.id}`)
       portfolioNames.value = [...response.data]
     } catch (error) {
       console.error('Get portfolio names error:', error.message)
@@ -141,13 +143,13 @@ export const useTransactionsStore = defineStore('useTransactionsStore', () => {
 
   async function getData() {
     try {
-      const response = await api.get('transactionData/getAssets/6')
+      const response = await api.get(`transactionData/getAssets/${userLS.value.id}`)
       const assets = response.data
 
       allAssets.value = []
       allTransactions.value = []
 
-      const assetIds = assets.map(asset => asset.id)
+      const assetIds = assets.map(asset => asset.marketId)
 
       const priceResponse = await api.get('marketData/assetPrice', {
         params: {
@@ -164,7 +166,7 @@ export const useTransactionsStore = defineStore('useTransactionsStore', () => {
 
         const portfoliosSet = new Set()
         const formattedTransactions = []
-        const currentPriceLocal = round3(Number(pricesMap.get(asset.name)) || 0)
+        const currentPriceLocal = round3(Number(pricesMap.get(asset.marketId)) || 0)
 
         // FIFO queue
         const buyQueue = []
@@ -320,8 +322,11 @@ export const useTransactionsStore = defineStore('useTransactionsStore', () => {
     selectedAsset.value = asset
   }
 
-  function selectTransaction(transaction) {
-    selectedTransaction.value = transaction
+  function selectTransaction(transaction) {    
+    selectedTransaction.value = {
+      ...transaction,
+      marketId: selectedAsset.value.id,
+    }
   }
 
   function setTransactions(newTransactions) {

@@ -71,7 +71,24 @@
     import { useTransactionsStore } from '@/store/useTransactionsStore.ts'
     import { api } from '@/components/api/api'
     import { useTableData } from '@/components/api/sortedFilteredReq.vue'
+    import { useLoginStore } from '@/store/useLoginStore.ts'
 
+        // ----------------------------------store
+    const { portfolioNames } = storeToRefs(useTransactionsStore())
+    
+    const toggler = usePageToggler()
+    const { toggleAddItem, toggleUpdateItem, transactionToUpdate } = storeToRefs(toggler)
+
+    const isToggleAddItem = computed(() => toggleAddItem.value)
+    const isToggleUpdateItem = computed(() => toggleUpdateItem.value)
+
+    const TransactionsStore = useTransactionsStore();
+    const { selectedTransaction, assetTransactions } = storeToRefs(TransactionsStore)
+    const { getData } = TransactionsStore
+    // ----------------------------------login store
+    const loginStore = useLoginStore()
+    const { userLS } = storeToRefs(loginStore)
+    // ----------------------------------
     const form = ref({
         name: '',
         price: '',
@@ -130,18 +147,7 @@
             form.value.assetId = null // if user enter not existing
         }
     }
-    // ----------------------------------store
-    const { portfolioNames } = storeToRefs(useTransactionsStore())
-    
-    const toggler = usePageToggler()
-    const { toggleAddItem, toggleUpdateItem, transactionToUpdate } = storeToRefs(toggler)
 
-    const isToggleAddItem = computed(() => toggleAddItem.value)
-    const isToggleUpdateItem = computed(() => toggleUpdateItem.value)
-
-    const TransactionsStore = useTransactionsStore();
-    const { selectedTransaction, getData } = storeToRefs(TransactionsStore);
-    // ----------------------------------
     const error = ref(null)
 
     function formatDateForInput(dateStr) {
@@ -246,7 +252,7 @@
             date: isoDate
         }
 
-        if (toggleUpdateItem.value == true) {            
+        if (toggleUpdateItem.value == true) {
             try {
                 const response = await api.patch('transactionData/updateTransaction', {
                     price: data.price,
@@ -255,8 +261,10 @@
                     portfolioId: data.portfolioId,
                     type: data.type,
                     assetId: data.name,
-                    userId: 6,
-                    id: data.id
+                    userId: Number(userLS.value.id),
+                    id: data.id,
+                    marketId: data.marketId,
+                    name: data.name
                 })
             } catch (error) {
                 console.error('Update transaction error:', error.message)
@@ -270,13 +278,15 @@
                     portfolioId: data.portfolioId,
                     type: data.type,
                     assetId: data.assetId,
-                    userId: 6
+                    userId: Number(userLS.value.id),
+                    marketId: data.assetId,
+                    name: data.name
                 })
             } catch (error) {
                 console.error('Add transaction error:', error.message)
             }
         }
-
+        
         hideMenu()
         return data
     }
@@ -284,6 +294,9 @@
     async function deleteItem() {
         try {
             const response = await api.delete(`transactionData/${form.value.id}`)
+            if (assetTransactions.value.length === 1) {
+                toggler.toggleCount()
+            }
         } catch (error) {
             console.error('Delete transaction error:', error.message)
         }

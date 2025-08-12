@@ -18,21 +18,23 @@ let TransactionService = class TransactionService {
         this.prisma = prisma;
     }
     async addTransaction(transaction) {
-        let asset = await this.prisma.asset.findUnique({ where: { id: transaction.assetId } });
+        const assetId = `${transaction.userId}-${transaction.assetId}`;
+        let asset = await this.prisma.asset.findUnique({ where: { id: assetId } });
         if (asset == null) {
             asset = await this.prisma.asset.create({
                 data: {
-                    id: transaction.assetId,
-                    name: transaction.assetId,
+                    id: assetId,
+                    name: transaction.name,
                     symbol: transaction.assetId,
                     userId: transaction.userId,
+                    marketId: transaction.assetId,
                 },
             });
         }
         const res = await this.prisma.transaction.create({
             data: {
                 type: transaction.type,
-                assetId: transaction.assetId,
+                assetId: assetId,
                 quantity: transaction.quantity,
                 price: transaction.price,
                 timestamp: new Date(transaction.timestamp),
@@ -49,7 +51,7 @@ let TransactionService = class TransactionService {
             },
             data: {
                 type: data.type,
-                assetId: data.assetId,
+                assetId: data.marketId,
                 quantity: data.quantity,
                 price: data.price,
                 timestamp: new Date(data.timestamp),

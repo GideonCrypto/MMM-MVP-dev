@@ -12,6 +12,14 @@ export class AddTransactionDto {
     assetId!: string;
 
     @ApiProperty()
+    @IsString()
+    name!: string;
+
+    @ApiProperty()
+    @IsString()
+    marketId!: string;
+
+    @ApiProperty()
     @IsNumber()
     quantity!: number;
 

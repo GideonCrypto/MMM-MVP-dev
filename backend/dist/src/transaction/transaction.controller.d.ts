@@ -5,8 +5,8 @@ export declare class TransactionController {
     constructor(service: TransactionService);
     addTransaction(addTransactionDto: AddTransactionDto): Promise<{
         id: number;
-        assetId: string;
         type: string;
+        assetId: string;
         quantity: number;
         price: number;
         timestamp: Date;
@@ -15,8 +15,8 @@ export declare class TransactionController {
     }>;
     update(updateTransaction: UpdateTransactionDto): Promise<{
         id: number;
-        assetId: string;
         type: string;
+        assetId: string;
         quantity: number;
         price: number;
         timestamp: Date;
@@ -27,23 +27,23 @@ export declare class TransactionController {
         message: string;
     }>;
     getTransactions(getTransactionsDto: GetTransactionsDto): Promise<({
-        user: {
-            id: number;
-            name: string;
-            createdAt: Date;
-            password: string;
-        };
         asset: {
             symbol: string;
             id: string;
-            name: string;
             userId: number;
+            name: string;
             marketId: string | null;
+        };
+        user: {
+            id: number;
+            name: string;
+            password: string;
+            createdAt: Date;
         };
     } & {
         id: number;
-        assetId: string;
         type: string;
+        assetId: string;
         quantity: number;
         price: number;
         timestamp: Date;
@@ -54,13 +54,13 @@ export declare class TransactionController {
         user: {
             id: number;
             name: string;
-            createdAt: Date;
             password: string;
+            createdAt: Date;
         };
         transactions: {
             id: number;
-            assetId: string;
             type: string;
+            assetId: string;
             quantity: number;
             price: number;
             timestamp: Date;
@@ -70,8 +70,8 @@ export declare class TransactionController {
     } & {
         symbol: string;
         id: string;
-        name: string;
         userId: number;
+        name: string;
         marketId: string | null;
     })[]>;
 }

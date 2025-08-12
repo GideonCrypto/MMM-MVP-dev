@@ -36,7 +36,7 @@ model Asset {
   id            String         @id
   name          String
   symbol        String
-  marketId      String?        @unique
+  marketId      String?
   market        MarketData?    @relation("AssetMarketData")
   transactions  Transaction[]
   userId   Int      

@@ -59,10 +59,15 @@
     import { useLocalCache } from '@/components/utils/useLocalCache'
     import { useTransactionsStore } from '@/store/useTransactionsStore.ts'
     import { storeToRefs } from 'pinia'
-
+    import { useLoginStore } from '@/store/useLoginStore.ts'
+    //---------------------store
     const store = useTransactionsStore()
     const { topProfitableAssets } = storeToRefs(store)
     const { getData } = store
+
+    const loginStore = useLoginStore()
+    const { userLS } = storeToRefs(loginStore)
+    //---------------------
 
     const listItemsApiTop = ref([])
 
@@ -94,10 +99,9 @@
         }
     } 
 
-        
     onMounted(async () => {
         await getData()// get assets + transactions, portfolio names
-        await getTopFromApi()
+        await getTopFromApi()        
     })
 
     const listItems = computed(() =>
