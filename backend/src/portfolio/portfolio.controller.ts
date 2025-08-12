@@ -29,7 +29,6 @@ export class PortfolioController {
                 type: [addPortfolioTagDto],
             })
     update(@Body() updateTransaction: addPortfolioTagDto) {
-        console.log(updateTransaction)
         try {
             const transaction = this.service.addPortfolioTag(updateTransaction);;
             return transaction;

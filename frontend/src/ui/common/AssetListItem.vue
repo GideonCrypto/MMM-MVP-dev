@@ -1,8 +1,5 @@
 <template>
-    <li
-        class="list-item"
-    >
-        <VueCryptocurrencyIcons :name='name' width='25px'/>
+    <li class="list-item">
         <span>{{ name }}</span>
         <span>{{ price }}</span>
         <span>{{ change }}</span>
@@ -12,17 +9,29 @@
 <script setup>
     defineProps({
         name: String,
-        img: String,
-        price: String,
-        change: String
+        price: Number | String,
+        change: Number | String
     })
     defineEmits(['select'])
 </script>
 
 <style scoped>
     .list-item {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr ;
+        height: 100%;
+        border: 2px solid black;
+        border-bottom: none;
+    }
+
+    span {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
+        border-left: 2px solid black;
+    }
+
+    span:first-child {
+        border: none;
     }
 </style>

@@ -5,8 +5,11 @@ import {
     IsOptional,
     IsDateString,
     IsInt,
+    Min,
+    IsIn,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class FindAllMarketData {
     @IsString()
@@ -123,4 +126,71 @@ export class CreateMarketDataDto {
     @IsString()
     @ApiProperty()
     assetId?: string | null;
+}
+
+export class GetMarketDataDto {
+    @IsOptional()
+    @IsString()
+    @ApiProperty({ required: false })
+    name?: string;
+
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @ApiProperty({ required: false })
+    currentPrice?: number;
+
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @ApiProperty({ required: false })
+    marketCap?: number;
+
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @ApiProperty({ required: false })
+    high24h?: number;
+
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @ApiProperty({ required: false })
+    low24h?: number;
+
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @ApiProperty({ required: false })
+    priceChange24H?: number;
+
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @ApiProperty({ required: false })
+    priceChangePercent24H?: number;
+
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @ApiProperty({ required: false })
+    @Min(1)
+    page: number = 1;
+
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @ApiProperty({ required: false })
+    @Min(1)
+    limit: number = 10;
+
+    @IsOptional()
+    @IsString()
+    @ApiProperty({ required: false, enum: ['name', 'currentPrice', 'marketCap', 'high24h', 'low24h', 'priceChange24H', 'priceChangePercent24H'] })
+    orderBy?: string;
+
+    @IsOptional()
+    @IsIn(['asc', 'desc'])
+    @ApiProperty({ required: false, enum: ['asc', 'desc'] })
+    orderDirection: 'asc' | 'desc' = 'asc';
 }

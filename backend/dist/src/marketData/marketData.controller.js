@@ -22,6 +22,14 @@ let MarketDataController = class MarketDataController {
     constructor(service) {
         this.service = service;
     }
+    async top() {
+        try {
+            return this.service.getTopCoins();
+        }
+        catch (error) {
+            throw new common_1.InternalServerErrorException('Unexpected error occurred');
+        }
+    }
     async sync() {
         try {
             return this.service.syncMarketData();
@@ -30,14 +38,18 @@ let MarketDataController = class MarketDataController {
             throw new common_1.InternalServerErrorException('Unexpected error occurred');
         }
     }
-    findAll(ids) {
+    findAll(query) {
         try {
-            if (ids instanceof Array) {
-                return this.service.findAll(ids);
-            }
-            else {
-                return this.service.findOne(ids);
-            }
+            return this.service.findAll(query);
+        }
+        catch (error) {
+            throw new common_1.InternalServerErrorException('Unexpected error occurred');
+        }
+    }
+    getAssetPrices(names) {
+        try {
+            const assetList = names.split(',').map(name => name.trim());
+            return this.service.getAssetPrices(assetList);
         }
         catch (error) {
             throw new common_1.InternalServerErrorException('Unexpected error occurred');
@@ -45,6 +57,15 @@ let MarketDataController = class MarketDataController {
     }
 };
 exports.MarketDataController = MarketDataController;
+__decorate([
+    (0, common_1.Get)('top'),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'Success',
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], MarketDataController.prototype, "top", null);
 __decorate([
     (0, common_1.Get)('sync'),
     (0, swagger_1.ApiOkResponse)({
@@ -56,16 +77,19 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MarketDataController.prototype, "sync", null);
 __decorate([
-    (0, common_1.Get)(':ids'),
-    (0, swagger_1.ApiOkResponse)({
-        description: 'Success',
-        type: [marketData_dto_1.CreateMarketDataDto],
-    }),
-    __param(0, (0, common_1.Query)('ids')),
+    (0, common_1.Get)('market'),
+    __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Array]),
+    __metadata("design:paramtypes", [marketData_dto_1.GetMarketDataDto]),
     __metadata("design:returntype", void 0)
 ], MarketDataController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('assetPrice'),
+    __param(0, (0, common_1.Query)('names')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], MarketDataController.prototype, "getAssetPrices", null);
 exports.MarketDataController = MarketDataController = __decorate([
     (0, common_1.Controller)('marketData'),
     __metadata("design:paramtypes", [marketData_service_1.MarketDataService])

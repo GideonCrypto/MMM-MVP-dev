@@ -5,8 +5,8 @@ export declare class TransactionService {
     constructor(prisma: PrismaService);
     addTransaction(transaction: AddTransactionDto): Promise<{
         id: number;
-        assetId: string;
         type: string;
+        assetId: string;
         quantity: number;
         price: number;
         timestamp: Date;
@@ -15,8 +15,8 @@ export declare class TransactionService {
     }>;
     updateTransaction(data: UpdateTransactionDto): Promise<{
         id: number;
-        assetId: string;
         type: string;
+        assetId: string;
         quantity: number;
         price: number;
         timestamp: Date;
@@ -24,28 +24,52 @@ export declare class TransactionService {
         portfolioId: number | null;
     }>;
     getTransactions(data: GetTransactionsDto): Promise<({
+        asset: {
+            symbol: string;
+            id: string;
+            userId: number;
+            name: string;
+            marketId: string | null;
+        };
         user: {
             id: number;
             name: string;
             password: string;
             createdAt: Date;
         };
-        asset: {
-            symbol: string;
-            id: string;
-            name: string;
-            userId: number;
-            marketId: string | null;
-        };
     } & {
         id: number;
-        assetId: string;
         type: string;
+        assetId: string;
         quantity: number;
         price: number;
         timestamp: Date;
         userId: number;
         portfolioId: number | null;
+    })[]>;
+    getAssets(userId: number): Promise<({
+        user: {
+            id: number;
+            name: string;
+            password: string;
+            createdAt: Date;
+        };
+        transactions: {
+            id: number;
+            type: string;
+            assetId: string;
+            quantity: number;
+            price: number;
+            timestamp: Date;
+            userId: number;
+            portfolioId: number | null;
+        }[];
+    } & {
+        symbol: string;
+        id: string;
+        userId: number;
+        name: string;
+        marketId: string | null;
     })[]>;
     deleteTransaction(transactionId: number): Promise<{
         message: string;

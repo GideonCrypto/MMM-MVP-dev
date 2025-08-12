@@ -1,60 +1,75 @@
 <template>
-    <div class="modal-overlay" @click.self="close">
+    <div class="modal-overlay">
         <div class="modal">
             <form @submit.prevent="handleSubmit">
-            <h2>{{ isToggleRemovePortfolio ? 'Delete portfolio' : 'Add portfolio' }}</h2>
+                <h2>{{ isToggleRemovePortfolio ? 'Delete portfolio' : 'Add portfolio' }}</h2>
 
-            <div class="form-group"  v-show="!isToggleRemovePortfolio">
-                <label>Name</label>
-                <input type="text" v-model="form.name" />
-            </div>
+                <div class="form-group"  v-show="!isToggleRemovePortfolio">
+                    <label>Name</label>
+                    <input type="text" v-model="form.name" />
+                </div>
 
-            <div class="form-group" v-show="!isToggleRemovePortfolio">
-                    <label>Date</label>
-                    <input type="date" v-model="form.date" />
-            </div>
+                <div class="form-group" v-show="!isToggleRemovePortfolio">
+                        <label>Date</label>
+                        <input type="date" v-model="form.date" />
+                </div>
 
-            <div class="form-group"  v-show="isToggleRemovePortfolio">
-                <label>Portfolio</label>
-                <select v-model="form.portfolio">
-                    <option disabled value="">Select</option>
-                    <option value="Main">Main</option>
-                    <option value="Test">Test</option>
-                    <option value="Test 2">Test 2</option>
-                </select>
-            </div>
+                <div class="form-group"  v-show="isToggleRemovePortfolio">
+                    <label>Portfolio</label>
+                    <select v-model="form.portfolio">
+                        <option disabled value="">Select</option>
+                        <option v-for="name in portfolioNames" :key="name" :value="name.id">
+                            {{ name.name }}
+                        </option>
+                    </select>
+                </div>
 
-            <p class="error" v-if="error">{{ error }}</p>
+                <p class="error" v-if="error">{{ error }}</p>
 
-            <div class="buttons">
-                <button type="submit">Add transaction</button>
-                <button type="button" @click="hideMenu" v-if="isToggleRemovePortfolio">Delete</button>
-                <button type="button" @click="hideMenu">Close window</button>
-            </div>
+                <div class="buttons">
+                    <button type="submit"  v-if="!isToggleRemovePortfolio">Add portfolio</button>
+                    <button type="button" @click="handleDelete" v-if="isToggleRemovePortfolio">Delete</button>
+                    <button type="button" @click="hideMenu">Close window</button>
+                </div>
             </form>
         </div>
     </div>
 </template>
 
 <script setup>
-    import { ref, watch } from "vue"
+    import { onMounted, ref, watch } from "vue"
     import { usePageToggler } from '@/store/usePageToggler.ts'
     import { storeToRefs } from 'pinia'
     import { computed } from 'vue'
-    
+    import { api } from '@/components/api/api.ts'
+    import { useTransactionsStore } from '@/store/useTransactionsStore.ts'
+    import { useLoginStore } from '@/store/useLoginStore.ts'
 
+    // ----------------------------------login store
+    const loginStore = useLoginStore()
+    const { userLS } = storeToRefs(loginStore)
+    // ----------------------------------
+
+    // ----------------------------------store
+    const transactionsStore = useTransactionsStore()
+
+    onMounted(() => {
+        transactionsStore.getPortfolios()
+    })
+
+    const portfolioNames = computed(() => transactionsStore.portfolioNames)
+    
     const toggler = usePageToggler()
     const { toggleAddPortfolio, toggleRemovePortfolio, portfolioToRemove } = storeToRefs(toggler)
 
     const isToggleAddPortfolio = computed(() => toggleAddPortfolio.value)
     const isToggleRemovePortfolio = computed(() => toggleRemovePortfolio.value)
-
+    // ----------------------------------
     const error = ref(null)
 
     const form = ref({
         name: '',
         date: '',
-        portfolio: '',
     })
 
     function hideMenu() {
@@ -68,9 +83,11 @@
             form.value[key] = ''
         }
         error.value = null
+
+        transactionsStore.getPortfolios()
     }
 
-    function handleSubmit() {
+    async function handleSubmit() {
         error.value = null
 
         if (isToggleAddPortfolio.value) {//for add
@@ -90,14 +107,36 @@
             }
         }
 
-        const timestamp = new Date(form.value.date).getTime()
+        const isoDate = new Date(form.value.date).toISOString();
         const data = {
             ...form.value,
-            date: timestamp
+            date: isoDate,
+            userId: Number(userLS.value.id)
         }
-
+        try {
+            const response = await api.post('portfolioData/createPortfolio', {
+                name: data.name,
+                createdAt: data.date,
+                userId: data.userId
+            })
+        } catch (error) {
+            console.error('Create portfolio error: ' + error.message)
+        }
+        
         hideMenu()
         return data
+    }
+
+    async function handleDelete() {
+        if (form.value.portfolio) {
+            try {
+                const response = await api.delete(`portfolioData/${form.value.portfolio}`)
+            } catch (error) {
+                console.error('Create portfolio error: ' + error.message)
+            }
+        }
+        
+        hideMenu()
     }
 </script>
 
@@ -169,7 +208,7 @@
         transition: background 0.2s;
     }
 
-    button[type="submit"] {
+    button:first-child {
         border-color: #007bff;
         color: #007bff;
     }

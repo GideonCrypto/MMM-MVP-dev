@@ -12,13 +12,15 @@
                     </div>
                     <div class="calc-wrapper">
                         <ul class="calc-list">
-                            <li>Total profit: {{ metrics.totalProfit }} USDT</li>
-                            <li>24h change: -24%</li>
-                            <li>Unrealised/Realised profit: {{ metrics.unrealizedProfit }}/{{ metrics.realizedProfit }} USDT</li>
+                            <li>Current price: {{ currentPrice }} USDT</li>
+                            <li>Current value: {{ metrics.currentValue }} USDT</li>
+                            <li>Total coins: {{ metrics.remainingCoins}}</li>
+                            <li>ROI: {{ metrics.roi }}</li>
                             <li>Average buy price: {{ metrics.averageBuyPrice }} USDT</li>
-                            <li>All invested: {{ metrics.totalInvested }} USDT</li>
-                            <li>Body/Sell: {{ metrics.totalInvested }}/{{ metrics.totalSold }} USDT</li>
-                            <li>Coin/Usdt value: {{ metrics.remainingCoins }}/{{ metrics.currentValue }} USDT</li>
+                            <li>Total Invested: {{ metrics.totalInvested }} USDT</li>
+                            <li>Total Realized: {{ metrics.totalSold }} USDT</li>
+                            <li>U/R profit: {{ metrics.unrealizedProfit }} / {{ metrics.realizedProfit }} USDT</li>
+                            <li>Coin/Usdt value: {{ metrics.remainingCoins }} / {{ metrics.currentValue }} USDT</li>
 
                         </ul>
                     </div>
@@ -30,18 +32,16 @@
         <div ref="scrollContainer" class="bot-container" @scroll="handleScroll">
             <ul class="list-container" v-if="!isToggled">
                 <li class="list-item sorting">
-                    <span>logo</span>
-                    <span>name</span>
-                    <span>current price</span>
-                    <span>total value/total coins</span>
-                    <span>total invested</span>
-                    <span>profit/loss</span>
-                    <span>total transactions</span>
-                    <span>portfolios list</span>
+                    <span @click="sortBy('name')" class="clickable">name</span>
+                    <span @click="sortBy('currentPrice')" class="clickable">current price</span>
+                    <span @click="sortBy('totalValue')" class="clickable">total value/total coins</span>
+                    <span @click="sortBy('totalInvested')" class="clickable">total invested</span>
+                    <span @click="sortBy('profitLoss')" class="clickable">profit/loss</span>
+                    <span @click="sortBy('totalTransactions')" class="clickable">total transactions</span>
+                    <span @click="sortBy('portfoliosList')" class="clickable">portfolios list</span>
                 </li>
-
                 <PortfolioListItem
-                    v-for="item in allAssets"
+                    v-for="item in TransactionsStore.filteredSortedAssets"
                     :key="item.id"
                     :name="item.name"
                     :currentPrice="item.currentPrice"
@@ -56,36 +56,26 @@
             </ul>
             <ul class="list-container" v-else>
                 <li class="list-item sorting">
-                    <span>logo</span>
-                    <span>name</span>
-                    <span>price</span>
-                    <span>total value/total coins</span>
-                    <span>total invested</span>
-                    <span>profit/loss</span>
-                    <span>transaction type</span>
-                    <span>portfolio</span>
+                    <span @click="sortBy('name')" class="clickable">name</span>
+                    <span @click="sortBy('price')" class="clickable">price</span>
+                    <span @click="sortBy('totalValue')" class="clickable">total value/total coins</span>
+                    <span @click="sortBy('date')" class="clickable">date</span>
+                    <span @click="sortBy('profitLoss')" class="clickable">profit/loss</span>
+                    <span @click="sortBy('transaction type')" class="clickable">transaction type</span>
+                    <span @click="sortBy('portfolio')" class="clickable">portfolio</span>
                 </li>
-
                 <PortfolioListItem
-                    v-for="item in assetTransactions"
+                    v-for="item in TransactionsStore.filteredSortedTransactions"
                     :key="item.id"
                     :name="item.name"
-                    :currentPrice="item.currentPrice"
+                    :currentPrice="item.price"
                     :totalValue="item.totalValue"
                     :totalCoins="item.totalCoins"
-                    :totalInvested="item.totalInvested"
+                    :totalInvested="item.date"
                     :profitLoss="item.profitLoss"
                     :portfoliosList="item.portfolio"
                     :type="item.type"
-                    @click="onSelectUpdate({
-                        name: 'Bitcoin',
-                        price: 32000,
-                        totalValue: 64000,
-                        totalCoins: 2,
-                        date: '2025-07-21',
-                        portfolio: 'Main',
-                        type: 'buy'
-                    })"
+                    @click="onSelectUpdate(item)"
                 />
             </ul>
         </div>
@@ -101,23 +91,27 @@
     import { storeToRefs } from 'pinia'
     import { usePageToggler } from '@/store/usePageToggler.ts'
     import { useTransactionsStore } from '@/store/useTransactionsStore.ts'
+    import { api } from '@/components/api/api'
 
-    const emit = defineEmits(['click'])
-
-    // store -------------------------------
+    //------------------------------- store
+    // -------transaction
     const TransactionsStore = useTransactionsStore()
-    const { allTransactions,
-            allAssets,
-            selectedAsset,
-            assetAnalitics,
-            } = storeToRefs(TransactionsStore)
+    const {
+        metrics,
+        assetTransactions,
+        currentPrice,
+    } = storeToRefs(TransactionsStore)
 
+    const {
+        addAsset,
+        setTransactions,
+        setCurrentPrice,
+        selectTransaction,
+    } = TransactionsStore
+    // -------toggler
+    
     const toggler = usePageToggler()
-    const { addAsset, 
-            assetTransactions,
-            toggleCountUpdateItem,
-            currentPrice,
-            metrics } = TransactionsStore
+
     const { toggle, asset, toggleAddItem, toggleUpdateItem } = storeToRefs(toggler)
 
     const isToggled = computed(() => toggle.value)
@@ -132,12 +126,32 @@
 
         // transactions
         addAsset(item)
+        TransactionsStore.setTransactions(item.transactions)//set list for selected asset
+        TransactionsStore.setCurrentPrice(item.currentPrice)//set current price for selected asset/all assets
     }
 
     function onSelectUpdate(item) {
-        const rawItem = toRaw(item)        
+        const rawItem = toRaw(item)
         toggler.toggleCountUpdateItem(rawItem)
+        TransactionsStore.selectTransaction(rawItem);
     }
+
+    
+    function sortBy(key) {
+        TransactionsStore.setSorting(key)
+    }
+
+    onMounted(async () => {
+        await TransactionsStore.getPortfolios()
+        await TransactionsStore.getData()// get assets + transactions, portfolio names
+
+        if (TransactionsStore.allAssets.length > 0) {
+            const firstAsset = TransactionsStore.allAssets[0]
+            TransactionsStore.addAsset(firstAsset)
+            TransactionsStore.setTransactions(firstAsset.transactions)
+            TransactionsStore.setCurrentPrice(firstAsset.currentPrice)
+        }
+    })
 </script>
 
 <style scoped>
@@ -169,10 +183,6 @@
         grid-template-columns: 1fr auto;
     }
 
-    .calc-wrapper{
-        
-    }
-
     .calc-list {
         display: grid;
         height: 100%;
@@ -201,8 +211,12 @@
 
     .list-item {
         display: grid;
-        grid-template-columns: repeat(8, 1fr);
+        grid-template-columns: repeat(7, minmax(0, 1fr));
         border-bottom: 2px solid black;
+    }
+
+    .clickable{
+        cursor: pointer;
     }
 
     span {

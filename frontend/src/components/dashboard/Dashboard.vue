@@ -1,6 +1,5 @@
 <template>
     <div class="dashboard-main-container">
-        <!-- <h1>Dashboard</h1> -->
         <div class="top-container">
             <div class="container-item portfolio">
                 <TotalPortfolio/>
@@ -8,8 +7,13 @@
             <div class="container-item">
                 <h4>Market data</h4>
                 <ul class="list-container">
+                    <li class="legend-item">
+                        <span>name</span>
+                        <span>price</span>
+                        <span>change</span>
+                    </li>
                     <AssetListItem
-                        v-for="item in listItems"
+                        v-for="item in listItemsApiTop"
                         :key="item.id"
                         :name="item.name"
                         :img="item.img"
@@ -21,16 +25,21 @@
         </div>
         <div class="bot-container">
             <div class="container-item">
-                <h4>Assets</h4>
+                <h4>Assets from portfolios</h4>
                 <ul class="list-container">
+                    <li class="legend-item">
+                        <span>name</span>
+                        <span>price</span>
+                        <span>profit</span>
+                    </li>
                     <AssetListItem
-                    v-for="item in listItems"
-                    :key="item.id"
-                    :name="item.name"
-                    :img="item.img"
-                    :price="item.price"
-                    :change="item.change"
-                />
+                        v-for="item in listItems"
+                        :key="item.id"
+                        :name="item.name"
+                        :img="item.img"
+                        :price="item.price"
+                        :change="item.profit"
+                    />
                 </ul>
             </div>
             <div class="container-item index">
@@ -42,36 +51,68 @@
 </template>
 
 <script setup>
+    import { ref, onMounted, computed } from 'vue'
     import AssetListItem from '@/ui/common/AssetListItem.vue'
     import FearGreed from '@/components/dashboard/items/FearGreed.vue'
     import TotalPortfolio from '@/components/dashboard/items/TotalPortfolio.vue'
+    import { api } from '@/components/api/api.ts'
+    import { useLocalCache } from '@/components/utils/useLocalCache'
+    import { useTransactionsStore } from '@/store/useTransactionsStore.ts'
+    import { storeToRefs } from 'pinia'
+    import { useLoginStore } from '@/store/useLoginStore.ts'
+    //---------------------store
+    const store = useTransactionsStore()
+    const { topProfitableAssets } = storeToRefs(store)
+    const { getData } = store
 
-    const listItems = [{
-            id:0,
-            name: 'bitcoin',
-            price: '112000',
-            change: '29'
-        },{
-            id:1,
-            name: 'solana',
-            price: '112000',
-            change: '29'
-        },{
-            id:2,
-            name: 'cardano',
-            price: '112000',
-            change: '-29'
-        },{
-            id:3,
-            name: 'ethereum',
-            price: '112000',
-            change: '+29'
-        },{
-            id:4,
-            name: 'ripple',
-            price: '112000',
-            change: '29'
-        }];
+    const loginStore = useLoginStore()
+    const { userLS } = storeToRefs(loginStore)
+    //---------------------
+
+    const listItemsApiTop = ref([])
+
+    const loadingApi = ref(true)
+    const errorApi = ref(null)
+
+    const getTopFromApi = async () => {
+        try {
+            const data = await useLocalCache({
+                key: 'marketDataTop',
+                ttl: 5 * 60 * 1000, // 5 min
+                fetcher: async () => {
+                    console.log('⏳ Fetch to API') 
+                    const response = await api.get('marketData/top')
+                    return response.data.slice(0, 5).map((item, index) => ({
+                        id: index,
+                        name: item.name,
+                        price: Number(item.current_price.toFixed(4)),
+                        change: Number(item.price_change_24h.toFixed(4))
+                    }))
+                }
+            })
+
+            listItemsApiTop.value = data
+        } catch (err) {
+            errorApi.value = err.message || 'Request failed'
+        } finally {
+            loadingApi.value = false
+        }
+    } 
+
+    onMounted(async () => {
+        await getData()// get assets + transactions, portfolio names
+        await getTopFromApi()        
+    })
+
+    const listItems = computed(() =>
+        topProfitableAssets.value.map((asset, index) => ({
+            id: index,
+            name: asset.name,
+            price: String(asset.currentPrice),
+            profit: asset.profitLoss >= 0 ? `+${asset.profitLoss}` : `${asset.profitLoss}`,
+    }))
+)
+
 </script>
 
 <style scoped>
@@ -120,9 +161,28 @@
         height: 90%;
     }
 
-    .list-container > li {
-        padding: 5px;
-        border-top: 1px solid black;
+    .list-container:last-child {
+        border-bottom: 2px solid black;
+    }
+
+    .legend-item {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr ;
+        height: 100%;
+        border: 2px solid black;
+        border-bottom: none;
+        background-color: lightgray;
+    }
+
+    span {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-left: 2px solid black;
+    }
+
+    span:first-child {
+        border: none;
     }
 
     .index > *:last-child {

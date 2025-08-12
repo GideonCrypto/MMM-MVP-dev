@@ -30,3 +30,16 @@ export declare class CreateMarketDataDto {
     lastUpdated: string;
     assetId?: string | null;
 }
+export declare class GetMarketDataDto {
+    name?: string;
+    currentPrice?: number;
+    marketCap?: number;
+    high24h?: number;
+    low24h?: number;
+    priceChange24H?: number;
+    priceChangePercent24H?: number;
+    page: number;
+    limit: number;
+    orderBy?: string;
+    orderDirection: 'asc' | 'desc';
+}

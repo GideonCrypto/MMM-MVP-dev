@@ -34,7 +34,6 @@ let PortfolioController = class PortfolioController {
         }
     }
     update(updateTransaction) {
-        console.log(updateTransaction);
         try {
             const transaction = this.service.addPortfolioTag(updateTransaction);
             ;

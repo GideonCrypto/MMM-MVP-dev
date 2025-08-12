@@ -64,6 +64,16 @@ let TransactionController = class TransactionController {
             throw new common_1.InternalServerErrorException('Unexpected error occurred');
         }
     }
+    async getAssets(userId) {
+        try {
+            const assets = await this.service.getAssets(userId);
+            return assets;
+        }
+        catch (error) {
+            console.error('Get assets error:', error);
+            throw new common_1.InternalServerErrorException('Unexpected error occurred');
+        }
+    }
 };
 exports.TransactionController = TransactionController;
 __decorate([
@@ -107,6 +117,17 @@ __decorate([
     __metadata("design:paramtypes", [transaction_dto_1.GetTransactionsDto]),
     __metadata("design:returntype", Promise)
 ], TransactionController.prototype, "getTransactions", null);
+__decorate([
+    (0, common_1.Get)('getAssets/:userId'),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'Success',
+        type: [transaction_dto_1.GetAssetsResponseDto],
+    }),
+    __param(0, (0, common_1.Param)('userId', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], TransactionController.prototype, "getAssets", null);
 exports.TransactionController = TransactionController = __decorate([
     (0, common_1.Controller)('transactionData'),
     __metadata("design:paramtypes", [transaction_service_1.TransactionService])

@@ -43,6 +43,12 @@ export const usePageToggler = defineStore('usePageToggler', () => {
     const toggleCountRemovePortfolio = () => {
         toggleRemovePortfolio.value = !toggleRemovePortfolio.value
     }// toggle for remove portfolio modal
+//-------------------------------market sync-------------------------------
+    const toggleSyncMarket = ref(false)// toggler for sync spiner
+
+    const toggleCountSyncMarket = () => {
+        toggleSyncMarket.value = !toggleSyncMarket.value
+    }// toggle for market sync
 
     return {
         toggle,
@@ -53,6 +59,7 @@ export const usePageToggler = defineStore('usePageToggler', () => {
         toggleRemovePortfolio,
         transactionToUpdate,
         portfolioToRemove,
+        toggleSyncMarket,
         toggleCount,
         toggleCountAddItem,
         toggleCountUpdateItem,
@@ -60,5 +67,6 @@ export const usePageToggler = defineStore('usePageToggler', () => {
         closeUpdateModal,
         toggleCountAddPortfolio,
         toggleCountRemovePortfolio,
+        toggleCountSyncMarket,
     }
 })

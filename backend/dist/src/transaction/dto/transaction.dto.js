@@ -9,13 +9,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TransactionResponseDto = exports.GetTransactionsDto = exports.UpdateTransactionDto = exports.AddTransactionDto = void 0;
+exports.GetAssetsResponseDto = exports.TransactionResponseDto = exports.GetTransactionsDto = exports.UpdateTransactionDto = exports.AddTransactionDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 class AddTransactionDto {
     type;
     assetId;
+    name;
+    marketId;
     quantity;
     price;
     timestamp;
@@ -33,6 +35,16 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], AddTransactionDto.prototype, "assetId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], AddTransactionDto.prototype, "name", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], AddTransactionDto.prototype, "marketId", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
     (0, class_validator_1.IsNumber)(),
@@ -135,4 +147,49 @@ __decorate([
     (0, class_validator_1.IsArray)(),
     __metadata("design:type", Array)
 ], TransactionResponseDto.prototype, "user", void 0);
+class GetAssetsResponseDto {
+    id;
+    name;
+    symbol;
+    marketId;
+    userId;
+    user;
+    transactions;
+}
+exports.GetAssetsResponseDto = GetAssetsResponseDto;
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], GetAssetsResponseDto.prototype, "id", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], GetAssetsResponseDto.prototype, "name", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], GetAssetsResponseDto.prototype, "symbol", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Object)
+], GetAssetsResponseDto.prototype, "marketId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], GetAssetsResponseDto.prototype, "userId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsArray)(),
+    __metadata("design:type", Array)
+], GetAssetsResponseDto.prototype, "user", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsArray)(),
+    __metadata("design:type", Array)
+], GetAssetsResponseDto.prototype, "transactions", void 0);
 //# sourceMappingURL=transaction.dto.js.map

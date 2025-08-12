@@ -9,7 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@phantasweng/vue-cryptocurrency-icons": "^0.1.1",
     "@tailwindcss/vite": "^4.1.11",
     "@vueuse/core": "^13.5.0",
     "chart.js": "^4.5.0",

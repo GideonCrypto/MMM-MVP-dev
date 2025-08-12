@@ -18,25 +18,28 @@ let TransactionService = class TransactionService {
         this.prisma = prisma;
     }
     async addTransaction(transaction) {
-        let asset = await this.prisma.asset.findUnique({ where: { id: transaction.assetId } });
+        const assetId = `${transaction.userId}-${transaction.assetId}`;
+        let asset = await this.prisma.asset.findUnique({ where: { id: assetId } });
         if (asset == null) {
             asset = await this.prisma.asset.create({
                 data: {
-                    id: transaction.assetId,
-                    name: transaction.assetId,
+                    id: assetId,
+                    name: transaction.name,
                     symbol: transaction.assetId,
                     userId: transaction.userId,
+                    marketId: transaction.assetId,
                 },
             });
         }
         const res = await this.prisma.transaction.create({
             data: {
                 type: transaction.type,
-                assetId: transaction.assetId,
+                assetId: assetId,
                 quantity: transaction.quantity,
                 price: transaction.price,
                 timestamp: new Date(transaction.timestamp),
                 userId: transaction.userId,
+                portfolioId: transaction.portfolioId,
             },
         });
         return res;
@@ -48,10 +51,11 @@ let TransactionService = class TransactionService {
             },
             data: {
                 type: data.type,
-                assetId: data.assetId,
+                assetId: data.marketId,
                 quantity: data.quantity,
                 price: data.price,
                 timestamp: new Date(data.timestamp),
+                portfolioId: data.portfolioId,
             },
         });
         return transaction;
@@ -68,6 +72,18 @@ let TransactionService = class TransactionService {
             },
         });
         return transactions;
+    }
+    async getAssets(userId) {
+        const assets = await this.prisma.asset.findMany({
+            where: {
+                userId: userId,
+            },
+            include: {
+                user: true,
+                transactions: true,
+            },
+        });
+        return assets;
     }
     async deleteTransaction(transactionId) {
         const transaction = await this.prisma.transaction.findUnique({

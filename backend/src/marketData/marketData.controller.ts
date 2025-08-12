@@ -1,11 +1,23 @@
 import { Controller, Get, InternalServerErrorException, Param, Query } from '@nestjs/common';
 import { MarketDataService } from './marketData.service';
 import { ApiOkResponse } from '@nestjs/swagger';
-import { CreateMarketDataDto, FindAllMarketData } from './dto/marketData.dto';
+import { CreateMarketDataDto, GetMarketDataDto } from './dto/marketData.dto';
 
 @Controller('marketData')
 export class MarketDataController {
     constructor(private readonly service: MarketDataService) {}
+
+    @Get('top')
+    @ApiOkResponse({
+        description: 'Success',
+    })
+    async top() {
+        try {
+            return this.service.getTopCoins();
+        } catch (error) {
+            throw new InternalServerErrorException('Unexpected error occurred');
+        }
+    }
 
     @Get('sync')
     @ApiOkResponse({
@@ -20,20 +32,22 @@ export class MarketDataController {
         }
     }
 
-    @Get(':ids')
-    @ApiOkResponse({
-        description: 'Success',
-        type: [CreateMarketDataDto],
-    })
-    findAll(@Query('ids') ids: []) {
+    @Get('market')
+    findAll(@Query() query: GetMarketDataDto) {
         try {
-            if (ids instanceof Array) {
-                return this.service.findAll(ids);
-            } else {
-                return this.service.findOne(ids);
-            }
+            return this.service.findAll(query);
         } catch (error) {
             throw new InternalServerErrorException('Unexpected error occurred');
         }
     }
+
+    @Get('assetPrice')
+    getAssetPrices(@Query('names') names: string) {
+        try {
+            const assetList = names.split(',').map(name => name.trim());        
+            return this.service.getAssetPrices(assetList);
+        } catch (error) {
+            throw new InternalServerErrorException('Unexpected error occurred');
+        }
+    }   
 }

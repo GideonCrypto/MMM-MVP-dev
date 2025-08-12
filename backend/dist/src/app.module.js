@@ -13,12 +13,13 @@ const user_module_1 = require("./user/user.module");
 const auth_module_1 = require("./auth/auth.module");
 const transaction_module_1 = require("./transaction/transaction.module");
 const portfolio_module_1 = require("./portfolio/portfolio.module");
+const database_module_1 = require("./database/database.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [marketData_module_1.MarketDataModule, user_module_1.UserModule, auth_module_1.AuthModule, transaction_module_1.TransactionModule, portfolio_module_1.PortfolioModule],
+        imports: [marketData_module_1.MarketDataModule, user_module_1.UserModule, auth_module_1.AuthModule, transaction_module_1.TransactionModule, portfolio_module_1.PortfolioModule, database_module_1.DatabaseModule],
         controllers: [],
         providers: [],
     })

@@ -5,25 +5,24 @@
             <h2>{{ isToggleUpdateItem ? 'Update Transaction' : 'Add Transaction' }}</h2>
 
             <div class="form-group">
-                <label>Name</label>
-                <input type="text" v-model="form.name" />
+                <label>Search and choose your asset from list</label>
+                <input v-model="query" list="suggestions" @change="handleAssetSelection"/>
+                <datalist id="suggestions">
+                    <option v-for="item in suggestions" :key="item.id" :value="item.name" />
+                </datalist>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label>Price</label>
-                    <input type="number" v-model="form.price" />
-                </div>
-                <div class="form-group">
-                    <label>Total value</label>
-                    <input type="number" v-model="form.totalValue" />
+                    <input type="number" v-model="form.price" step="0.000000000001" />
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label>Total coins</label>
-                    <input type="number" v-model="form.totalCoins" />
+                    <input type="number" v-model="form.totalCoins" step="0.000000000001" />
                 </div>
                 <div class="form-group">
                     <label>Date</label>
@@ -31,30 +30,32 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Portfolio</label>
-                <select v-model="form.portfolio">
-                    <option disabled value="">Select</option>
-                    <option value="Main">Main</option>
-                    <option value="Test">Test</option>
-                    <option value="Test 2">Test 2</option>
-                </select>
-            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Portfolio</label>
+                    <select v-model="form.portfolioId">
+                        <option disabled value="">Select</option>
+                        <option v-for="name in portfolioNames" :key="name" :value="name.id">
+                            {{ name.name }}
+                        </option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label>Type</label>
-                <select v-model="form.type">
-                    <option disabled value="">Select</option>
-                    <option value="buy">Buy</option>
-                    <option value="sell">Sell</option>
-                </select>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select v-model="form.type">
+                        <option disabled value="">Select</option>
+                        <option value="buy">Buy</option>
+                        <option value="sell">Sell</option>
+                    </select>
+                </div>
             </div>
 
             <p class="error" v-if="error">{{ error }}</p>
 
             <div class="buttons">
                 <button type="submit">{{ isToggleUpdateItem ? 'Update Transaction' : 'Add Transaction' }}</button>
-                <button type="button"  @click="hideMenu" v-if="toggleUpdateItem">Delete</button>
+                <button type="button"  @click="deleteItem" v-if="toggleUpdateItem">Delete</button>
                 <button type="button" @click="hideMenu">Close window</button>
             </div>
             </form>
@@ -63,50 +64,122 @@
 </template>
 
 <script setup>
-    import { ref, watch } from "vue"
+    import { onMounted, ref, watch } from "vue"
     import { usePageToggler } from '@/store/usePageToggler.ts'
     import { storeToRefs } from 'pinia'
     import { computed } from 'vue'
-    
+    import { useTransactionsStore } from '@/store/useTransactionsStore.ts'
+    import { api } from '@/components/api/api'
+    import { useTableData } from '@/components/api/sortedFilteredReq.vue'
+    import { useLoginStore } from '@/store/useLoginStore.ts'
 
+        // ----------------------------------store
+    const { portfolioNames } = storeToRefs(useTransactionsStore())
+    
     const toggler = usePageToggler()
     const { toggleAddItem, toggleUpdateItem, transactionToUpdate } = storeToRefs(toggler)
 
     const isToggleAddItem = computed(() => toggleAddItem.value)
     const isToggleUpdateItem = computed(() => toggleUpdateItem.value)
 
-    const error = ref(null)
-
+    const TransactionsStore = useTransactionsStore();
+    const { selectedTransaction, assetTransactions } = storeToRefs(TransactionsStore)
+    const { getData } = TransactionsStore
+    // ----------------------------------login store
+    const loginStore = useLoginStore()
+    const { userLS } = storeToRefs(loginStore)
+    // ----------------------------------
     const form = ref({
         name: '',
         price: '',
-        totalValue: '',
         totalCoins: '',
         date: '',
-        portfolio: '',
-        type: ''
+        portfolioId: '',
+        type: '',
+        assetId: '',
     })
+
+    // ----------------------------------select search
+    const {
+        data,
+        filters,
+        loadData,
+        loading
+    } = useTableData({
+        url: 'marketData/market',
+        initialFilters: {
+            name: '',
+            marketCap: null,
+        },
+        defaultSort: {
+            orderBy: 'marketCap',
+            orderDirection: 'desc',
+        },
+    })
+    
+    const query = computed({
+        get: () => form.value.name,
+        set: (val) => {
+            form.value.name = val
+            filters.name = val
+        }
+    })// get selected data from datalist
+
+    watch(query, (newVal) => {
+        filters.name = newVal
+    })// watching for query and update filter
+
+    const suggestions = computed(() => {
+        const seen = new Set()
+        return data.value.filter(item => {
+            if (seen.has(item.name)) return false
+            seen.add(item.name)
+            return true
+        })
+    })// dropdown list
+
+    function handleAssetSelection() {
+        const selected = suggestions.value.find(item => item.name === form.value.name)
+        if (selected) {
+            form.value.assetId = selected.id
+            console.log(form.value.assetId);
+        } else {
+            form.value.assetId = null // if user enter not existing
+        }
+    }
+
+    const error = ref(null)
+
+    function formatDateForInput(dateStr) {
+        const parts = dateStr.split('.');
+        if (parts.length !== 3) return '';
+
+        const [day, month, year] = parts;
+        if (!day || !month || !year) return '';
+
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
 
     watch(toggleUpdateItem, (val) => {
-        if (val) {
+        if (val && selectedTransaction.value) {
             form.value = {
-            ...transactionToUpdate.value,
-            date: new Date(transactionToUpdate.value.date).toISOString().split('T')[0]
-            }
+                ...selectedTransaction.value,
+                date: formatDateForInput(selectedTransaction.value.date),
+            };
         }
-    })
+    });
 
-    function hideMenu() {
+    async function hideMenu() {
         if (toggleUpdateItem.value && !toggleAddItem.value) {
             toggler.toggleUpdateItem = !toggleUpdateItem
             form.value = {
                 name: '',
                 price: '',
-                totalValue: '',
                 totalCoins: '',
                 date: '',
                 portfolio: '',
-                type: ''
+                type: '',
+                assetId: ''
             }
         } else {
             toggler.toggleCountAddItem()
@@ -116,9 +189,21 @@
             form.value[key] = ''
         }
         error.value = null
+
+        await TransactionsStore.getData()
+
+        const updatedAsset = TransactionsStore.allAssets.find(
+            a => a.name === TransactionsStore.selectedAsset.name
+        )
+
+        if (updatedAsset) {
+            TransactionsStore.addAsset(updatedAsset)
+            TransactionsStore.setTransactions(updatedAsset.transactions)
+            TransactionsStore.setAllTransactionsFromAsset(updatedAsset)
+        }
     }
 
-    function handleSubmit() {
+    async function handleSubmit() {
         error.value = null
 
         if (!form.value.name) {
@@ -126,17 +211,18 @@
             return
         }
 
+        if (!form.value.assetId) {
+            if (!toggleUpdateItem.value) {
+                error.value = 'Choose correct name from list'
+                return
+            }
+        }
+
         const price = Number(form.value.price)
-        const totalValue = Number(form.value.totalValue)
         const totalCoins = Number(form.value.totalCoins)
 
         if (isNaN(price)) {
             error.value = 'Enter price'
-            return
-        }
-
-        if (isNaN(totalValue) || totalValue <= 0) {
-            error.value = 'Total value must be greater than 0'
             return
         }
 
@@ -145,13 +231,12 @@
             return
         }
 
-
         if (!form.value.date) {
             error.value = 'Enter date'
             return
         }
 
-        if (!form.value.portfolio) {
+        if (!form.value.portfolioId) {
             error.value = 'Choose portfolio'
             return
         }
@@ -161,15 +246,66 @@
             return
         }
 
-        const timestamp = new Date(form.value.date).getTime()
+        const isoDate = new Date(form.value.date).toISOString()
         const data = {
             ...form.value,
-            date: timestamp
+            date: isoDate
         }
 
+        if (toggleUpdateItem.value == true) {
+            try {
+                const response = await api.patch('transactionData/updateTransaction', {
+                    price: data.price,
+                    quantity: data.totalCoins,
+                    timestamp: data.date,
+                    portfolioId: data.portfolioId,
+                    type: data.type,
+                    assetId: data.name,
+                    userId: Number(userLS.value.id),
+                    id: data.id,
+                    marketId: data.marketId,
+                    name: data.name
+                })
+            } catch (error) {
+                console.error('Update transaction error:', error.message)
+            }
+        } else {
+            try {            
+                const response = await api.post('transactionData/addTransaction', {
+                    price: data.price,
+                    quantity: data.totalCoins,
+                    timestamp: data.date,
+                    portfolioId: data.portfolioId,
+                    type: data.type,
+                    assetId: data.assetId,
+                    userId: Number(userLS.value.id),
+                    marketId: data.assetId,
+                    name: data.name
+                })
+            } catch (error) {
+                console.error('Add transaction error:', error.message)
+            }
+        }
+        
         hideMenu()
         return data
     }
+
+    async function deleteItem() {
+        try {
+            const response = await api.delete(`transactionData/${form.value.id}`)
+            if (assetTransactions.value.length === 1) {
+                toggler.toggleCount()
+            }
+        } catch (error) {
+            console.error('Delete transaction error:', error.message)
+        }
+        hideMenu()
+    }
+
+    onMounted(() => {
+        loadData()
+    })
 </script>
 
 <style scoped>
