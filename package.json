@@ -1,12 +1,27 @@
 {
+    "name": "MMM",
+    "private": true,
+    "main": "electron/main.js",
+    "author": "Gideon",
+    "description": "Money Movement Monitor desktop app",
+    "version": "0.5.0",
     "scripts": {
-        "start": "concurrently \"npm:dev:frontend\" \"npm:dev:backend\" \"npm:dev:electron\"",
         "dev:frontend": "cd frontend && npm run dev",
         "dev:backend": "cd backend && npm run start:dev",
-        "dev:electron": "wait-on http://localhost:5173 && npx electron ./electron/main.mjs"
+        "dev:electron": "cross-env NODE_ENV=development electron ./electron/main.js",
+        "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run dev:electron\"",
+        "build:frontend": "cd frontend && npm run build",
+        "build:backend": "cd backend && npm install && npm run build",
+        "build:electron": "npm run build:backend && cross-env NODE_ENV=production electron-builder",
+        "build": "npm run build:frontend && npm run build:backend && npm run build:electron",
+        "electron:prod": "cross-env NODE_ENV=production electron ./electron/main.js"
     },
     "devDependencies": {
         "concurrently": "^8.2.2",
+        "cross-env": "^10.0.0",
+        "electron": "^37.2.6",
+        "electron-builder": "^26.0.12",
+        "tsx": "^4.20.4",
         "wait-on": "^7.2.0"
     }
 }

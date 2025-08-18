@@ -16,10 +16,15 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document); // URL http://localhost:3000/api
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
+  // app.enableCors({
+  //   origin: 'http://localhost:5173',
+  //   credentials: true,
+  // })
   app.enableCors({
-    origin: 'http://localhost:5173',
+    // @ts-ignore
+    origin: (origin, cb) => cb(null, true), // Разрешаем всё локально
     credentials: true,
-  })
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }

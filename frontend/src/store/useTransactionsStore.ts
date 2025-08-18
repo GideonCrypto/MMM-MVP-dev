@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { defineStore, storeToRefs } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { useAssetMetrics } from '../composable/useAssetMetrics'

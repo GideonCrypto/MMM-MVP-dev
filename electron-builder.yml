@@ -1,0 +1,27 @@
+appId: com.example.moneymonitor
+productName: MoneyMovementMonitor
+
+directories:
+  output: dist_electron
+
+files:
+  - backend/dist/**
+  - backend/node_modules/**
+  - backend/prisma/**
+  - frontend/dist/**
+  - electron/**
+
+asar: false
+
+extraResources:
+  - from: extra/node.exe
+    to: .
+    filter:
+      - node.exe
+
+win:
+  target:
+    - nsis
+mac:
+  target:
+    - dmg
