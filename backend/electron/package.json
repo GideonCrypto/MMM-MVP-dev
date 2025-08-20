@@ -1,0 +1,7 @@
+{
+  "name": "mmm-electron",
+  "version": "0.5.1",
+  "main": "main.js",
+  "private": true,
+  "type": "module"
+}

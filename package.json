@@ -1,27 +1,29 @@
 {
-    "name": "MMM",
-    "private": true,
-    "main": "electron/main.js",
-    "author": "Gideon",
-    "description": "Money Movement Monitor desktop app",
-    "version": "0.5.0",
-    "scripts": {
-        "dev:frontend": "cd frontend && npm run dev",
-        "dev:backend": "cd backend && npm run start:dev",
-        "dev:electron": "cross-env NODE_ENV=development electron ./electron/main.js",
-        "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run dev:electron\"",
-        "build:frontend": "cd frontend && npm run build",
-        "build:backend": "cd backend && npm install && npm run build",
-        "build:electron": "npm run build:backend && cross-env NODE_ENV=production electron-builder",
-        "build": "npm run build:frontend && npm run build:backend && npm run build:electron",
-        "electron:prod": "cross-env NODE_ENV=production electron ./electron/main.js"
-    },
-    "devDependencies": {
-        "concurrently": "^8.2.2",
-        "cross-env": "^10.0.0",
-        "electron": "^37.2.6",
-        "electron-builder": "^26.0.12",
-        "tsx": "^4.20.4",
-        "wait-on": "^7.2.0"
-    }
+  "name": "MMM",
+  "private": true,
+  "main": "backend/electron/main.js",
+  "author": "Gideon",
+  "description": "Money Movement Monitor desktop app",
+  "version": "0.5.1",
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run start:dev",
+    "dev:electron": "cross-env NODE_ENV=development electron ./backend/electron/main.js",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run dev:electron\"",
+    "build:frontend": "cd frontend && npm ci && npm run build",
+    "build:backend": "cd backend && npm ci && npm run build",
+    "clean:electron": "npx rimraf backend/electron/dist backend/electron/win-unpacked",
+    "build:electron": "npm run clean:electron && npm run build:frontend && npm run build:backend && cross-env NODE_ENV=production electron-builder",
+    "build": "npm run build:electron",
+    "electron:prod": "cross-env NODE_ENV=production electron ./backend/electron/main.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^10.0.0",
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12",
+    "tsx": "^4.20.4",
+    "wait-on": "^7.2.0",
+    "rimraf": "^5.0.0"
+  }
 }

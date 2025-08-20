@@ -5,11 +5,13 @@ directories:
   output: dist_electron
 
 files:
+  - frontend/dist/**
   - backend/dist/**
   - backend/node_modules/**
   - backend/prisma/**
-  - frontend/dist/**
-  - electron/**
+  - backend/electron/**
+  - "!backend/electron/dist/**"
+  - "!**/win-unpacked/**"
 
 asar: false
 
@@ -18,10 +20,9 @@ extraResources:
     to: .
     filter:
       - node.exe
+  - from: backend/prisma/dev.db
+    to: backend/prisma/dev.db
 
 win:
   target:
     - nsis
-mac:
-  target:
-    - dmg
