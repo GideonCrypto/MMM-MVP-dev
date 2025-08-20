@@ -5,7 +5,7 @@ export const useLoginStore = defineStore('useLoginStore', () => {
     const login = ref(false);
     const keyLS = 'user';
     const userLS = ref();
-
+// @ts-ignore
     function writeUserToLS(data) {
         localStorage.setItem(keyLS, JSON.stringify({ ...data }));
         userLS.value = data;

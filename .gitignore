@@ -4,11 +4,14 @@
 /build
 backend/node_modules/
 frontend/node_modules/
-electron/node_modules/
+backend/electron/node_modules/
 backend/.env
 frontend/.env
 backend/dist
 frontend/dist
+backend/electron/dist
+/extra
+/dist_electron
 
 # Logs
 logs

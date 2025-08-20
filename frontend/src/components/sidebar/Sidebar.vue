@@ -35,11 +35,16 @@
 
 <script setup lang="ts">
     import { computed, ref } from 'vue'
+    // @ts-ignore
     import ToggleBtn from '@/ui/common/ToggleButton.vue'
+    // @ts-ignore
     import ListItem from '@/ui/common/NavListItem.vue'
     import { useRoute } from 'vue-router'
+    // @ts-ignore
     import { api } from '@/components/api/api.ts'
+    // @ts-ignore
     import { useLoginStore } from '@/store/useLoginStore.ts'
+    // @ts-ignore
     import { storeToRefs } from "pinia";
 
     // ---------------------store
@@ -74,6 +79,7 @@
             const response = await api.post('database/import')
             alert(response.data.message)
         } catch (err) {
+            // @ts-ignore
             error.value = err.message || 'Request failed'
         } finally {
             loading.value = false
@@ -87,6 +93,7 @@
             const response = await api.get('/database/export')
             alert(response.data.message)
         } catch (err) {
+            // @ts-ignore
             error.value = err.message || 'Request failed'
         } finally {
             loading.value = false
@@ -97,7 +104,9 @@
     // --------------------- Log out
     const logOut = () => {
         removeUserFromLS()//log out (rm user from LS)
-        window.location.href = '/'//reload app and move too dashboard
+        // @ts-ignore
+        window.electronAPI.reloadApp();//reload app and move too dashboard (for electron app)
+        // window.location.href = '/'//reload app and move too dashboard
     }
     // ---------------------
 </script>

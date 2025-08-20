@@ -1,3 +1,4 @@
+// @ts-ignore
 export function useAssetMetrics(transactions: Transaction[], currentPrice: number) {
     const buyQueue: { price: number, quantity: number }[] = []
     let realizedProfit = 0
