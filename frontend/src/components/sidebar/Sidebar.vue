@@ -21,10 +21,12 @@
         </div>
         <div class="sidebar-item-container">
             <ToggleBtn
-                v-for="toggle in toggles"
-                :key="toggle.id"
-                v-model="toggle.model"
-                :text="toggle.text"
+                v-model="toggler.toggleTheme"
+                :text="{ first: 'Dark', second: 'Light' }"
+                @click="toggler.toggleThemeType"
+            />
+            <ToggleBtn
+                :text="{ first: 'Ru', second: 'En' }"
             />
         </div>
         <div class="sidebar-item-container">
@@ -46,10 +48,16 @@
     import { useLoginStore } from '@/store/useLoginStore.ts'
     // @ts-ignore
     import { storeToRefs } from "pinia";
+    // @ts-ignore
+    import { usePageToggler } from '@/store/usePageToggler.ts'
 
     // ---------------------store
+    // login store
     const store = useLoginStore()
     const { removeUserFromLS } = store
+    //toggler store
+    const toggler = usePageToggler()
+    const { toggleTheme, toggleThemeType } = storeToRefs(toggler)
     // ---------------------
     // ---------------------common
     const toggles = ref([

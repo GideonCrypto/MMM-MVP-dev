@@ -73,20 +73,34 @@
     .menu-container {
         display: grid;
         padding: 5px;
-        border-left: 2px solid black;
+        border-left: 2px solid var(--border-color);
     }
 
     button, select {
         width: 100%;
         height: 30px;
         background: none;
-        border: 1px solid black;
+        border: 1px solid var(--border-color);
         border-radius: 5px;
         margin: 5px 0;
         text-align: center;
+        color: var(--text-color);
+    }
+
+    option {
+        color: black;
     }
 
     button:hover {
-        background-color: lightgray;
+        background-color: var(--table-header-color);
+    }
+
+    button:disabled {
+        text-decoration: line-through;
+    }
+
+    button:disabled:hover {
+        text-decoration: line-through;
+        color: var(--error-text-color);
     }
 </style>

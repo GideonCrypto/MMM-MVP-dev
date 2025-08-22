@@ -67,6 +67,8 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        background-color: white;
+        border-radius: 5px;
     }
 
     span {

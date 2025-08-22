@@ -176,6 +176,6 @@
     }
 
     p {
-        color: red;
+        color: var(--error-text-color);
     }
 </style>

@@ -141,7 +141,7 @@
         min-width: 20vw;
         max-height: 90%;
         width: 70%;
-        border: 2px solid black;
+        border: 2px solid var(--border-color);
         border-radius: 5px;
         padding: 10px;
         margin: 10px 20px;
@@ -152,6 +152,8 @@
         justify-content: center;
         align-items: center;
         border: none;
+        background-color: white;
+        color: black;
     }
 
     .list-container {
@@ -162,23 +164,23 @@
     }
 
     .list-container:last-child {
-        border-bottom: 2px solid black;
+        border-bottom: 2px solid var(--border-color);
     }
 
     .legend-item {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr ;
         height: 100%;
-        border: 2px solid black;
+        border: 2px solid var(--border-color);
         border-bottom: none;
-        background-color: lightgray;
+        background-color: var(--table-header-color);
     }
 
     span {
         display: flex;
         justify-content: center;
         align-items: center;
-        border-left: 2px solid black;
+        border-left: 2px solid var(--border-color);
     }
 
     span:first-child {

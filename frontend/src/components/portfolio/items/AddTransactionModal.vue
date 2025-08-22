@@ -320,11 +320,12 @@
     }
 
     .modal {
-        background: white;
+        background: var(--bg-color);
         padding: 24px;
         border-radius: 12px;
         width: 400px;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        border: 2px solid var(--modal-border-color);
     }
 
     h2 {
@@ -355,7 +356,7 @@
     select {
         padding: 8px 10px;
         font-size: 14px;
-        border: 1px solid #ccc;
+        border: 1px solid var(--modal-input-border-color);
         border-radius: 6px;
         outline: none;
         transition: border 0.2s;
@@ -363,7 +364,7 @@
 
     input:focus,
     select:focus {
-        border-color: black;
+        border-color: var(--modal-input-hover-border-color);
     }
 
     label {
@@ -380,12 +381,13 @@
 
     button {
         padding: 10px 16px;
-        border: 1px solid #ddd;
-        background: #fff;
+        border: 1px solid var(--modal-button-border-color);
+        background: var(--modal-button-bg-color);
         border-radius: 6px;
         cursor: pointer;
         font-size: 14px;
         transition: background 0.2s;
+        color: var(--text-color);
     }
 
     button[type="submit"] {
@@ -394,11 +396,11 @@
     }
 
     button:hover {
-        background: #f4f4f4;
+        background: var(--modal-button-hover-bg-color);
     }
 
     .error {
-        color: red;
+        color: var(--error-text-color);
         font-size: 12px;
         margin-top: -10px;
         margin-bottom: 10px;

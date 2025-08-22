@@ -62,7 +62,7 @@
 
     .about-item {
         padding: 10px;
-        border-top: 2px solid black;
+        border-top: 2px solid var(--border-color);
         display: flex;
         align-items: center;
     }
@@ -79,7 +79,7 @@
     .roudmap-img {
         border-radius: 8px;
         width: 300px; 
-        border: 2px solid black;
+        border: 2px solid var(--border-color);
     }
 
     h3, p {

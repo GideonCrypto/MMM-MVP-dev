@@ -49,6 +49,20 @@ export const usePageToggler = defineStore('usePageToggler', () => {
     const toggleCountSyncMarket = () => {
         toggleSyncMarket.value = !toggleSyncMarket.value
     }// toggle for market sync
+//-------------------------------theme toggler-------------------------------
+    const toggleTheme = ref(localStorage.getItem('theme') === 'dark')// toggler theme btn
+
+    const setTheme = (dark: boolean) => {
+        toggleTheme.value = dark
+        document.documentElement.classList.toggle('dark', dark)
+        localStorage.setItem('theme', dark ? 'dark' : 'light')
+    }
+
+    const toggleThemeType = () => {
+        setTheme(!toggleTheme.value)
+    }
+
+    setTheme(toggleTheme.value)
 
     return {
         toggle,
@@ -60,6 +74,7 @@ export const usePageToggler = defineStore('usePageToggler', () => {
         transactionToUpdate,
         portfolioToRemove,
         toggleSyncMarket,
+        toggleTheme,
         toggleCount,
         toggleCountAddItem,
         toggleCountUpdateItem,
@@ -68,5 +83,7 @@ export const usePageToggler = defineStore('usePageToggler', () => {
         toggleCountAddPortfolio,
         toggleCountRemovePortfolio,
         toggleCountSyncMarket,
+        toggleThemeType,
+        setTheme,
     }
 })

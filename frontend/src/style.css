@@ -1,4 +1,39 @@
-/* reset.css */
+/* ----------------------themes--------------------- */
+/* light */
+:root {
+    --bg-color: white;
+    --text-color: black;
+    --border-color: black;
+    --graf-text-color: lightgrey;
+    --table-header-color: lightgrey;
+    --error-text-color: red;
+    --hover-bg-color: lightgrey;
+    /* modal window */
+    --modal-border-color:  none;
+    --modal-input-border-color:  #ccc;
+    --modal-input-hover-border-color:  #black;
+    --modal-button-border-color:  #ddd;
+    --modal-button-bg-color:  #fff;
+    --modal-button-hover-bg-color:  #f4f4f4;
+}
+
+/* dark */
+:root.dark {
+    --bg-color: black;
+    --text-color: white;
+    --border-color: greenyellow;
+    --graf-text-color: greenyellow;
+    --table-header-color: #222;
+    --hover-bg-color: lightgrey;
+    /* modal window */
+    --modal-border-color:  greenyellow;
+    --modal-input-border-color:  #ccc;
+    --modal-input-hover-border-color:  #black;
+    --modal-button-border-color:  greenyellow;
+    --modal-button-bg-color:  black;
+    --modal-button-hover-bg-color:  ##222;
+}
+/* ----------------------reset---------------------- */
 * {
     margin: 0;
     padding: 0;
@@ -12,8 +47,8 @@ html, body {
 body {
     line-height: 1;
     font-family: sans-serif;
-    background-color: #fff;
-    color: #000;
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 ul, ol {

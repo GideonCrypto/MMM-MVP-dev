@@ -178,7 +178,7 @@
         display: grid;
         gap: 10px;
         grid-template-columns: 3fr 1fr;
-        border: 2px solid black;
+        border: 2px solid var(--border-color);
         justify-content: center;
     }
 
@@ -197,7 +197,7 @@
     }
 
     .settings-container {
-        border-left: 2px solid black;
+        border-left: 2px solid var(--border-color);
         display: flex;
         flex-direction: column;
         justify-content: space-around;
@@ -211,7 +211,7 @@
     .bot-container {
         display: grid;
         grid-template-rows:1fr auto ;
-        border: 2px solid black;
+        border: 2px solid var(--border-color);
     }
 
     .loading {
@@ -230,13 +230,12 @@
     .list-item {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        border-bottom: 2px solid black;
-        
+        border-bottom: 2px solid var(--border-color);
     }
 
     span {
         display: grid;
-        border-left: 2px solid #000;
+        border-left: 2px solid var(--border-color);
         padding: 2px;
         place-items: center;
         text-align: center;
@@ -249,7 +248,7 @@
 
     .sorting {
         position: sticky;
-        background: lightgray;
+        background: var(--table-header-color);
     }
 
     .pages-container {
@@ -259,16 +258,27 @@
     }
 
     button, .page-number {
-        background: none;
+        background: var(--bg-color);
+        color: var(--text-color);
         border-radius: 5px;
-        border: 1px solid black;
+        border: 1px solid var(--border-color);
         text-align: center;
         padding: 5px;
         margin: 0px 5px;
     }
 
     button:hover {
-        background-color: lightgray;
+        background-color: var(--table-header-color);
+        color: black;
+    }
+
+    button:disabled {
+        text-decoration: line-through;
+    }
+
+    button:disabled:hover {
+        text-decoration: line-through;
+        color: var(--error-text-color);
     }
 
     .page-number {

@@ -3,7 +3,7 @@
         <AddTransactionMenu v-show="isToggleAddItem || isToggleUpdateItem"/>
         <div class="top-container">
             <div class="grafs-container" v-if="!isToggled">
-                <PortfolioGrowth/>
+                <PortfolioGrowth class="graf-wrapper"/>
             </div>
             <div class="grafs-container" v-else>
                 <div class="asset-data-container">
@@ -167,7 +167,7 @@
         display: grid;
         gap: 10px;
         grid-template-columns: 4fr 1fr;
-        border: 2px solid black;
+        border: 2px solid var(--border-color);
         justify-content: center;
     }
 
@@ -175,6 +175,11 @@
         display: grid;
         width: 100%;
         padding: 5px;
+    }
+
+    .graf-wrapper {
+        background-color: white;
+        border-radius: 5px;
     }
 
     .asset-data-container {
@@ -187,21 +192,21 @@
         display: grid;
         height: 100%;
         font-size: 13px;
-        border: 2px solid black;
+        border: 2px solid var(--border-color);
         border-bottom: none;
     }
 
     .calc-list > li {
         text-align: left;
         align-content: center;
-        border-bottom: 2px solid #000;
+        border-bottom: 2px solid var(--border-color);
         padding: 5px;
     }
 /* --------------------bot styles */
     .bot-container {
         height: 350px;
         overflow-y: auto;
-        border: 2px solid black;
+        border: 2px solid var(--border-color);
         scrollbar-width: none;
     }
 
@@ -212,6 +217,10 @@
     .list-item {
         display: grid;
         grid-template-columns: repeat(7, minmax(0, 1fr));
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .type-sell, .type-buy {
         border-bottom: 2px solid black;
     }
 
@@ -221,7 +230,7 @@
 
     span {
         display: grid;
-        border-left: 2px solid #000;
+        border-left: 2px solid var(--border-color);
         padding: 2px;
         place-items: center;
         text-align: center;
@@ -235,6 +244,6 @@
         position: sticky;
         top: 0;
         z-index: 10;
-        background: lightgray;
+        background: var(--table-header-color);
     }
 </style>

@@ -41,7 +41,7 @@
         text-align: center;
         height: 100%;
         margin: auto 0;
-        border-left: 2px solid #000;
+        border-left: 2px solid var(--border-color);
         overflow-wrap: break-word;
         white-space: normal;
         justify-content: center;
@@ -61,6 +61,15 @@
     }
 
     .list-item:hover {
-        background-color: lightgray;
+        background-color: var(--hover-bg-color);
+        color: black;
+    }
+
+    .list-item:hover > span {
+        border-left: 1px solid black;
+    }
+
+    .list-item:hover > span:first-child {
+        border-left: none;
     }
 </style>
