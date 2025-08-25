@@ -7,30 +7,32 @@
             <ul>
                 <li v-for="item in listItems" :key="item.id">
                     <router-link :to="item.path" class="router-link-wrapper">
-                        <ListItem
-                        :text="item.text"
+                    <ListItem
+                        :textKey="item.textKey"
                         :is-active="activePath === item.path"
-                        />
+                    />
                     </router-link>
                 </li>
             </ul>
         </div>
         <div class="sidebar-item-container bottom">
-            <button class="db-btn" @click="importDB">Import DB</button>
-            <button class="db-btn" @click="exportDB">Export DB</button>
+            <button class="db-btn" @click="importDB">{{t('sidebar.import')}}</button>
+            <button class="db-btn" @click="exportDB">{{t('sidebar.export')}}</button>
         </div>
         <div class="sidebar-item-container">
             <ToggleBtn
                 v-model="toggler.toggleTheme"
-                :text="{ first: 'Dark', second: 'Light' }"
+                :text="{ first: t('sidebar.themeD'), second: t('sidebar.themeL') }"
                 @click="toggler.toggleThemeType"
             />
             <ToggleBtn
+                v-model="toggler.isRu"
                 :text="{ first: 'Ru', second: 'En' }"
+                @click="toggler.toggleLocale"
             />
         </div>
         <div class="sidebar-item-container">
-            <button class="db-btn log-out-btn" @click="logOut">Log Out</button>
+            <button class="db-btn log-out-btn" @click="logOut">{{t('sidebar.logout')}}</button>
         </div>
     </div>
 </template>
@@ -50,6 +52,8 @@
     import { storeToRefs } from "pinia";
     // @ts-ignore
     import { usePageToggler } from '@/store/usePageToggler.ts'
+    import { i18n } from '../../locales/i18n'
+    import { useI18n } from 'vue-i18n'
 
     // ---------------------store
     // login store
@@ -57,19 +61,15 @@
     const { removeUserFromLS } = store
     //toggler store
     const toggler = usePageToggler()
-    const { toggleTheme, toggleThemeType } = storeToRefs(toggler)
+    
+    const { t } = useI18n()
     // ---------------------
     // ---------------------common
-    const toggles = ref([
-        { id: 0, model: ref(false), text: { first: 'Dark', second: 'Light' } },
-        { id: 1, model: ref(true), text: { first: 'Ru', second: 'En' } }
-    ])
-
     const listItems = [
-        { id: 0, text: 'Dashboard', path: '/' },
-        { id: 1, text: 'Portfolio', path: '/portfolio' },
-        { id: 2, text: 'Market', path: '/market' },
-        { id: 3, text: 'About', path: '/about' }
+        { id: 0, textKey: 'sidebar.dashboard', path: '/' },
+        { id: 1, textKey: 'sidebar.portfolio', path: '/portfolio' },
+        { id: 2, textKey: 'sidebar.market', path: '/market' },
+        { id: 3, textKey: 'sidebar.about', path: '/about' }
     ]
 
     const route = useRoute()

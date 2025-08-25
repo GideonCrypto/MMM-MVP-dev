@@ -138,6 +138,7 @@
         align-items: center;
         height: 100vh;
         background-color: lightgray;
+        color: black;
     }
 
     .login-menu, form {

@@ -2,10 +2,10 @@
     <div class="modal-overlay" @click.self="close">
         <div class="modal">
             <form @submit.prevent="handleSubmit">
-            <h2>{{ isToggleUpdateItem ? 'Update Transaction' : 'Add Transaction' }}</h2>
+            <h2>{{ isToggleUpdateItem ? t('portfolio.transaction.mainTitleUpdate') : t('portfolio.transaction.mainTitleAdd') }}</h2>
 
             <div class="form-group">
-                <label>Search and choose your asset from list</label>
+                <label>{{t('portfolio.transaction.search')}}</label>
                 <input v-model="query" list="suggestions" @change="handleAssetSelection"/>
                 <datalist id="suggestions">
                     <option v-for="item in suggestions" :key="item.id" :value="item.name" />
@@ -14,25 +14,25 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Price</label>
+                    <label>{{t('portfolio.transaction.price')}}</label>
                     <input type="number" v-model="form.price" step="0.000000000001" />
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Total coins</label>
+                    <label>{{t('portfolio.transaction.totalCoin')}}</label>
                     <input type="number" v-model="form.totalCoins" step="0.000000000001" />
                 </div>
                 <div class="form-group">
-                    <label>Date</label>
+                    <label>{{t('portfolio.transaction.date')}}</label>
                     <input type="date" v-model="form.date" />
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Portfolio</label>
+                    <label>{{t('portfolio.transaction.portfolio')}}</label>
                     <select v-model="form.portfolioId">
                         <option disabled value="">Select</option>
                         <option v-for="name in portfolioNames" :key="name" :value="name.id">
@@ -42,7 +42,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Type</label>
+                    <label>{{t('portfolio.transaction.type')}}</label>
                     <select v-model="form.type">
                         <option disabled value="">Select</option>
                         <option value="buy">Buy</option>
@@ -54,9 +54,9 @@
             <p class="error" v-if="error">{{ error }}</p>
 
             <div class="buttons">
-                <button type="submit">{{ isToggleUpdateItem ? 'Update Transaction' : 'Add Transaction' }}</button>
-                <button type="button"  @click="deleteItem" v-if="toggleUpdateItem">Delete</button>
-                <button type="button" @click="hideMenu">Close window</button>
+                <button type="submit">{{ isToggleUpdateItem ? t('portfolio.transaction.submitUpdate') : t('portfolio.transaction.submitAdd')  }}</button>
+                <button type="button"  @click="deleteItem" v-if="toggleUpdateItem">{{t('portfolio.transaction.delete')}}</button>
+                <button type="button" @click="hideMenu">{{t('portfolio.transaction.close')}}</button>
             </div>
             </form>
         </div>
@@ -72,8 +72,11 @@
     import { api } from '@/components/api/api'
     import { useTableData } from '@/components/api/sortedFilteredReq.vue'
     import { useLoginStore } from '@/store/useLoginStore.ts'
+    import { i18n } from '../../../locales/i18n'
+    import { useI18n } from 'vue-i18n'
 
-        // ----------------------------------store
+    const { t } = useI18n()
+    // ----------------------------------store
     const { portfolioNames } = storeToRefs(useTransactionsStore())
     
     const toggler = usePageToggler()
@@ -207,13 +210,13 @@
         error.value = null
 
         if (!form.value.name) {
-            error.value = 'Enter name'
+            error.value = t('portfolio.transaction.nameErr')
             return
         }
 
         if (!form.value.assetId) {
             if (!toggleUpdateItem.value) {
-                error.value = 'Choose correct name from list'
+                error.value = t('portfolio.transaction.correctNameErr')
                 return
             }
         }
@@ -221,28 +224,28 @@
         const price = Number(form.value.price)
         const totalCoins = Number(form.value.totalCoins)
 
-        if (isNaN(price)) {
-            error.value = 'Enter price'
+        if (isNaN(price) || price <= 0) {
+            error.value = t('portfolio.transaction.priceErr')
             return
         }
 
         if (isNaN(totalCoins) || totalCoins <= 0) {
-            error.value = 'Total coins must be greater than 0'
+            error.value = t('portfolio.transaction.coinsErr')
             return
         }
 
         if (!form.value.date) {
-            error.value = 'Enter date'
+            error.value = t('portfolio.transaction.dateErr')
             return
         }
 
         if (!form.value.portfolioId) {
-            error.value = 'Choose portfolio'
+            error.value = t('portfolio.transaction.portfolioErr')
             return
         }
 
         if (!form.value.type) {
-            error.value = 'Choose type'
+            error.value = t('portfolio.transaction.typeErr')
             return
         }
 

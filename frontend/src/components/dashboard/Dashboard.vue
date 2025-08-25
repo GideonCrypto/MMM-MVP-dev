@@ -5,12 +5,12 @@
                 <TotalPortfolio/>
             </div>
             <div class="container-item">
-                <h4>Market data</h4>
+                <h4>{{t('dashboard.marketData')}}</h4>
                 <ul class="list-container">
                     <li class="legend-item">
-                        <span>name</span>
-                        <span>price</span>
-                        <span>change</span>
+                        <span>{{t('table.name')}}</span>
+                        <span>{{t('table.price')}}</span>
+                        <span>{{t('table.change')}}</span>
                     </li>
                     <AssetListItem
                         v-for="item in listItemsApiTop"
@@ -25,12 +25,12 @@
         </div>
         <div class="bot-container">
             <div class="container-item">
-                <h4>Assets from portfolios</h4>
+                <h4>{{t('dashboard.topPortfolio')}}</h4>
                 <ul class="list-container">
                     <li class="legend-item">
-                        <span>name</span>
-                        <span>price</span>
-                        <span>profit</span>
+                        <span>{{t('table.name')}}</span>
+                        <span>{{t('table.price')}}</span>
+                        <span>{{t('table.profit')}}</span>
                     </li>
                     <AssetListItem
                         v-for="item in listItems"
@@ -43,7 +43,7 @@
                 </ul>
             </div>
             <div class="container-item index">
-                <h4>Fear & Greed Index</h4>
+                <h4>{{t('dashboard.fearGread')}}</h4>
                 <FearGreed/>
             </div>
         </div>
@@ -60,6 +60,10 @@
     import { useTransactionsStore } from '@/store/useTransactionsStore.ts'
     import { storeToRefs } from 'pinia'
     import { useLoginStore } from '@/store/useLoginStore.ts'
+    import { i18n } from '../../locales/i18n'
+    import { useI18n } from 'vue-i18n'
+
+    const { t } = useI18n()
     //---------------------store
     const store = useTransactionsStore()
     const { topProfitableAssets } = storeToRefs(store)
@@ -68,7 +72,6 @@
     const loginStore = useLoginStore()
     const { userLS } = storeToRefs(loginStore)
     //---------------------
-
     const listItemsApiTop = ref([])
 
     const loadingApi = ref(true)

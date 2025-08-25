@@ -12,15 +12,15 @@
                     </div>
                     <div class="calc-wrapper">
                         <ul class="calc-list">
-                            <li>Current price: {{ currentPrice }} USDT</li>
-                            <li>Current value: {{ metrics.currentValue }} USDT</li>
-                            <li>Total coins: {{ metrics.remainingCoins}}</li>
-                            <li>ROI: {{ metrics.roi }}</li>
-                            <li>Average buy price: {{ metrics.averageBuyPrice }} USDT</li>
-                            <li>Total Invested: {{ metrics.totalInvested }} USDT</li>
-                            <li>Total Realized: {{ metrics.totalSold }} USDT</li>
-                            <li>U/R profit: {{ metrics.unrealizedProfit }} / {{ metrics.realizedProfit }} USDT</li>
-                            <li>Coin/Usdt value: {{ metrics.remainingCoins }} / {{ metrics.currentValue }} USDT</li>
+                            <li>{{t('portfolio.metrics.currentPrice')}} {{ currentPrice }} USDT</li>
+                            <li>{{t('portfolio.metrics.currentValue')}}  {{ metrics.currentValue }} USDT</li>
+                            <li>{{t('portfolio.metrics.totalCoins')}}  {{ metrics.remainingCoins}}</li>
+                            <li>{{t('portfolio.metrics.ROI')}}  {{ metrics.roi }}</li>
+                            <li>{{t('portfolio.metrics.averageBuyPrice')}}  {{ metrics.averageBuyPrice }} USDT</li>
+                            <li>{{t('portfolio.metrics.totalInvested')}}  {{ metrics.totalInvested }} USDT</li>
+                            <li>{{t('portfolio.metrics.totalRealized')}}  {{ metrics.totalSold }} USDT</li>
+                            <li>{{t('portfolio.metrics.URProfit')}}  {{ metrics.unrealizedProfit }} / {{ metrics.realizedProfit }} USDT</li>
+                            <li>{{t('portfolio.metrics.coinsUsdtValue')}}  {{ metrics.remainingCoins }} / {{ metrics.currentValue }} USDT</li>
 
                         </ul>
                     </div>
@@ -32,13 +32,13 @@
         <div ref="scrollContainer" class="bot-container" @scroll="handleScroll">
             <ul class="list-container" v-if="!isToggled">
                 <li class="list-item sorting">
-                    <span @click="sortBy('name')" class="clickable">name</span>
-                    <span @click="sortBy('currentPrice')" class="clickable">current price</span>
-                    <span @click="sortBy('totalValue')" class="clickable">total value/total coins</span>
-                    <span @click="sortBy('totalInvested')" class="clickable">total invested</span>
-                    <span @click="sortBy('profitLoss')" class="clickable">profit/loss</span>
-                    <span @click="sortBy('totalTransactions')" class="clickable">total transactions</span>
-                    <span @click="sortBy('portfoliosList')" class="clickable">portfolios list</span>
+                    <span @click="sortBy('name')" class="clickable">{{t('table.name')}}</span>
+                    <span @click="sortBy('currentPrice')" class="clickable">{{t('table.currentPrice')}}</span>
+                    <span @click="sortBy('totalValue')" class="clickable">{{t('table.totalValue')}}/{{t('table.totalCoins')}}</span>
+                    <span @click="sortBy('totalInvested')" class="clickable">{{t('table.totalInvested')}}</span>
+                    <span @click="sortBy('profitLoss')" class="clickable">{{t('table.profit')}}/{{t('table.loss')}}</span>
+                    <span @click="sortBy('totalTransactions')" class="clickable">{{t('table.totalTransactions')}}</span>
+                    <span @click="sortBy('portfoliosList')" class="clickable">{{t('table.portfoliosList')}}</span>
                 </li>
                 <PortfolioListItem
                     v-for="item in TransactionsStore.filteredSortedAssets"
@@ -56,13 +56,13 @@
             </ul>
             <ul class="list-container" v-else>
                 <li class="list-item sorting">
-                    <span @click="sortBy('name')" class="clickable">name</span>
-                    <span @click="sortBy('price')" class="clickable">price</span>
-                    <span @click="sortBy('totalValue')" class="clickable">total value/total coins</span>
-                    <span @click="sortBy('date')" class="clickable">date</span>
-                    <span @click="sortBy('profitLoss')" class="clickable">profit/loss</span>
-                    <span @click="sortBy('transaction type')" class="clickable">transaction type</span>
-                    <span @click="sortBy('portfolio')" class="clickable">portfolio</span>
+                    <span @click="sortBy('name')" class="clickable">{{t('table.name')}}</span>
+                    <span @click="sortBy('price')" class="clickable">{{t('table.price')}}</span>
+                    <span @click="sortBy('totalValue')" class="clickable">{{t('table.totalValue')}}/{{t('table.totalCoins')}}</span>
+                    <span @click="sortBy('date')" class="clickable">{{t('table.date')}}</span>
+                    <span @click="sortBy('profitLoss')" class="clickable">{{t('table.profit')}}/{{t('table.loss')}}</span>
+                    <span @click="sortBy('transaction type')" class="clickable">{{t('table.transactionType')}}</span>
+                    <span @click="sortBy('portfolio')" class="clickable">{{t('table.portfolio')}}</span>
                 </li>
                 <PortfolioListItem
                     v-for="item in TransactionsStore.filteredSortedTransactions"
@@ -92,7 +92,10 @@
     import { usePageToggler } from '@/store/usePageToggler.ts'
     import { useTransactionsStore } from '@/store/useTransactionsStore.ts'
     import { api } from '@/components/api/api'
+    import { i18n } from '../../locales/i18n'
+    import { useI18n } from 'vue-i18n'
 
+    const { t } = useI18n()
     //------------------------------- store
     // -------transaction
     const TransactionsStore = useTransactionsStore()

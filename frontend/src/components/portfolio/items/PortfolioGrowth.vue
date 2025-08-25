@@ -20,7 +20,11 @@
     import { useTransactionsStore } from '@/store/useTransactionsStore.ts'
     import { usePageToggler } from '@/store/usePageToggler.ts'
     import { storeToRefs } from 'pinia'
+    import { i18n } from '../../../locales/i18n'
+    import { useI18n } from 'vue-i18n'
 
+    const { t } = useI18n()
+    // -------------------------------------store
     const toggler = usePageToggler()
     const { toggle } = storeToRefs(toggler)
 
@@ -104,7 +108,7 @@
             labels,
             datasets: [
                 {
-                    label: 'Net Cash Flow of the Portfolio ($)',
+                    label: t('portfolio.graph.title'),
                     data,
                     fill: true,
                     borderColor: 'rgba(75, 192, 192, 1)',
