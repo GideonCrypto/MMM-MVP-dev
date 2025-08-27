@@ -74,4 +74,8 @@
     .type-sell > span {
         border-left: 2px solid black;
     } 
+
+    .type-sell, .type-buy {
+        border-bottom: 2px solid black !important;
+    }
 </style>

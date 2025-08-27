@@ -26,9 +26,9 @@
             <template v-if="toggleSyncMarket">
                 <div class="loading">
                     <p>
-                        {{t('market.sincLoad1')}}
+                        {{t('market.syncLoad1')}}
                         <br>
-                        {{t('market.sincLoad2')}}
+                        {{t('market.syncLoad2')}}
                     </p>
                 </div>
 

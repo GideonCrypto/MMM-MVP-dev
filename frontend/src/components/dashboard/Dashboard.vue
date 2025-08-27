@@ -12,14 +12,24 @@
                         <span>{{t('table.price')}}</span>
                         <span>{{t('table.change')}}</span>
                     </li>
-                    <AssetListItem
-                        v-for="item in listItemsApiTop"
-                        :key="item.id"
-                        :name="item.name"
-                        :img="item.img"
-                        :price="item.price"
-                        :change="item.change"
-                    />
+                    <template v-if="listItemsApiTop && listItemsApiTop.length">
+                        <AssetListItem
+                            v-for="item in listItemsApiTop"
+                            :key="item.id"
+                            :name="item.name"
+                            :price="item.price"
+                            :change="item.change"
+                        />
+                    </template>
+                    <template v-else>
+                        <AssetListItem
+                            v-for="n in 5"
+                            :key="'placeholder-' + n"
+                            name="—"
+                            price="—"
+                            change="—"
+                        />
+                    </template>
                 </ul>
             </div>
         </div>
@@ -32,14 +42,24 @@
                         <span>{{t('table.price')}}</span>
                         <span>{{t('table.profit')}}</span>
                     </li>
-                    <AssetListItem
-                        v-for="item in listItems"
-                        :key="item.id"
-                        :name="item.name"
-                        :img="item.img"
-                        :price="item.price"
-                        :change="item.profit"
-                    />
+                    <template v-if="listItems && listItems.length">
+                        <AssetListItem
+                            v-for="item in listItems"
+                            :key="item.id"
+                            :name="item.name"
+                            :price="item.price"
+                            :change="item.profit"
+                        />
+                    </template>
+                    <template v-else>
+                        <AssetListItem
+                            v-for="n in 5"
+                            :key="'placeholder-' + n"
+                            name="—"
+                            price="—"
+                            change="—"
+                        />
+                    </template>
                 </ul>
             </div>
             <div class="container-item index">

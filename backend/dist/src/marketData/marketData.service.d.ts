@@ -4,9 +4,10 @@ import { CoingeckoService } from 'src/coinGecko/coinGecko.service';
 export declare class MarketDataService {
     private prisma;
     private readonly coingeckoService;
+    private readonly logger;
     constructor(prisma: PrismaService, coingeckoService: CoingeckoService);
     getTopCoins(): Promise<any>;
-    syncMarketData(): Promise<void>;
+    syncMarketData(): Promise<unknown>;
     upsertMany(dataArray: CreateMarketDataDto[]): Promise<void>;
     findAll(query: GetMarketDataDto): Promise<{
         data: {

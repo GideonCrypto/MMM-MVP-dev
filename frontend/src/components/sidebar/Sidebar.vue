@@ -52,6 +52,7 @@
     import { storeToRefs } from "pinia";
     // @ts-ignore
     import { usePageToggler } from '@/store/usePageToggler.ts'
+    // @ts-ignore
     import { i18n } from '../../locales/i18n'
     import { useI18n } from 'vue-i18n'
 

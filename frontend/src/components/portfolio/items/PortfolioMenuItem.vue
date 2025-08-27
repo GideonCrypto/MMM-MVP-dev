@@ -74,9 +74,17 @@
 
 <style scoped>
     .menu-container {
-        display: grid;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        flex: 1;
+        height: 100%;
         padding: 5px;
         border-left: 2px solid var(--border-color);
+    }
+
+    .transaction {
+        padding-bottom: 100px;
     }
 
     button, select {
