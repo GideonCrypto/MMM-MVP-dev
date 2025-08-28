@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron';
+import { app, BrowserWindow, globalShortcut, shell } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import { spawn } from 'child_process';
@@ -12,7 +12,6 @@ process.on('unhandledRejection', (reason) => console.error('[UNHANDLED]', reason
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const isPackaged = app.isPackaged;
 
 // -------------------------------------------------
@@ -53,10 +52,10 @@ let mainWindow = null;
 
 async function startBackend() {
   if (isPackaged) {
+    // prod
     const backendRoot = path.join(process.resourcesPath, 'app', 'backend');
     const backendEntry = path.join(backendRoot, 'dist/src', 'main.js');
 
-    // find db
     const candidates = findPackagedDbCandidates();
     let packagedDb = null;
     for (const c of candidates) {
@@ -84,16 +83,12 @@ async function startBackend() {
 
     console.log('[MAIN] Spawning backend with', nodeBinary, nodeArgs.join(' '));
 
-    backendProcess = spawn(
-      nodeBinary,
-      nodeArgs,
-      {
-        cwd: backendRoot,
-        env: { ...process.env, NODE_ENV: 'production', DATABASE_URL: databaseUrl, ELECTRON_RUN_AS_NODE: '1' },
-        stdio: 'inherit',
-        windowsHide: true
-      }
-    );
+    backendProcess = spawn(nodeBinary, nodeArgs, {
+      cwd: backendRoot,
+      env: { ...process.env, NODE_ENV: 'production', DATABASE_URL: databaseUrl, ELECTRON_RUN_AS_NODE: '1' },
+      stdio: 'inherit',
+      windowsHide: true
+    });
 
     backendProcess.on('exit', (code, sig) => {
       console.log('[BACKEND] exited', code, sig);
@@ -102,23 +97,22 @@ async function startBackend() {
     try {
       await waitForPort(3000);
       console.log('✅ Backend is running on :3000');
-      if (mainWindow) {
-        const frontendIndex = path.join(process.resourcesPath, 'app', 'frontend', 'dist', 'index.html');
-        console.log('[MAIN] Reloading frontend (prod):', frontendIndex);
-        mainWindow.loadFile(frontendIndex, {
-          hash: '/dashboard' // default page after back loaded
-        });
+
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        const frontendIndex = path.join(process.resourcesPath, 'app', 'frontend', 'dist', 'index.html')
+        await mainWindow.loadFile(frontendIndex, { hash: '/' }) // open Dashboard ("/")
+        console.log('[MAIN] Frontend loaded after backend start')
       }
     } catch (err) {
       console.warn('[MAIN] waitForPort timeout or error:', err);
     }
   } else {
-    // DEV режим
+    // DEV
     try {
       await waitForPort(3000);
       console.log('✅ Backend dev is reachable on :3000');
-      if (mainWindow) {
-        mainWindow.loadURL('http://localhost:5173/#/dashboard');
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.reload();
       }
     } catch (err) {
       console.warn('[MAIN] waitForPort dev timeout or error:', err);
@@ -132,40 +126,34 @@ async function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    icon: path.join(__dirname, "img", "icon-256x256.ico"),
     webPreferences: {
       contextIsolation: true,
-      preload: fs.existsSync(path.join(__dirname, 'preload.js')) 
-        ? path.join(__dirname, 'preload.js') 
-        : undefined
+      preload: fs.existsSync(path.join(__dirname, 'preload.js')) ? path.join(__dirname, 'preload.js') : undefined
     }
   });
 
   mainWindow.removeMenu();
 
-  if (isPackaged) {
-    const frontendIndex = path.join(process.resourcesPath, 'app', 'frontend', 'dist', 'index.html');
-    console.log('[MAIN] Loading frontend (prod):', frontendIndex);
-    try {
-      await mainWindow.loadFile(frontendIndex, {
-        hash: '/dashboard' // start page
-      });
-    } catch (err) {
-      console.error('[MAIN] Failed to load frontend index.html:', err);
+  // external links open in browser
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (/^https?:\/\//i.test(url)) {
+      shell.openExternal(url);
+      return { action: 'deny' };
     }
-  } else {
-    const devUrl = 'http://localhost:5173';
-    console.log('[MAIN] Loading frontend (dev):', devUrl);
-    await mainWindow.loadURL(devUrl);
-    // devTools auto open disable
-  }
+    return { action: 'allow' };
+  });
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (/^https?:\/\//i.test(url)) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  });
 
-  // hotkey for DevTools
-  globalShortcut.register('Control+Shift+I', () => {
-    if (mainWindow) mainWindow.webContents.toggleDevTools();
-  });
-  globalShortcut.register('F12', () => {
-    if (mainWindow) mainWindow.webContents.toggleDevTools();
-  });
+  if (!isPackaged) {
+    // DEV: load Vite
+    await mainWindow.loadURL('http://localhost:5173/#/');
+  }
 
   return mainWindow;
 }
@@ -183,7 +171,15 @@ app.whenReady().then(async () => {
 
   await createWindow();
 
-  // run back
+  // DevTools hotkeys
+  globalShortcut.register('Control+Shift+I', () => {
+    if (mainWindow) mainWindow.webContents.toggleDevTools();
+  });
+  globalShortcut.register('F12', () => {
+    if (mainWindow) mainWindow.webContents.toggleDevTools();
+  });
+
+  // back run
   startBackend().catch((err) => {
     console.error('[MAIN] Backend failed to start:', err);
   });

@@ -20,7 +20,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr 1fr ;
         height: 100%;
-        border: 2px solid black;
+        border: 2px solid var(--border-color);
         border-bottom: none;
     }
 
@@ -28,7 +28,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        border-left: 2px solid black;
+        border-left: 2px solid var(--border-color);
     }
 
     span:first-child {

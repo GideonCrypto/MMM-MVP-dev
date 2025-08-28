@@ -1,66 +1,124 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, RequestTimeoutException, Logger } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateMarketDataDto, GetMarketDataDto } from './dto/marketData.dto';
 import { CoingeckoService } from 'src/coinGecko/coinGecko.service';
 
 @Injectable()
 export class MarketDataService {
-    constructor(private prisma: PrismaService, private readonly coingeckoService: CoingeckoService,) {}
+    private readonly logger = new Logger(MarketDataService.name);
+
+    constructor(
+        private prisma: PrismaService,
+        private readonly coingeckoService: CoingeckoService,
+    ) {}
+
     async getTopCoins() {
         const rawData = await this.coingeckoService.getTopCoins();
-        return rawData
+        return rawData;
     }
 
     async syncMarketData() {
-        const rawData = await this.coingeckoService.getMarketData();
+        const TOTAL_TIMEOUT_MS = 30 * 60 * 1000; // 30 min
+        const STALL_TIMEOUT_MS = 5 * 60 * 1000;  // 5 min
 
-        const dtoData: CreateMarketDataDto[] = rawData.map((item) => {
-            return new CreateMarketDataDto({
-            id: item.id,
-            symbol: item.symbol,
-            name: item.name,
-            image: item.image,
-            currentPrice: item.current_price,
-            marketCap: item.market_cap,
-            marketCapRank: item.market_cap_rank,
-            fullyDilutedValuation: item.fully_diluted_valuation,
-            totalVolume: item.total_volume,
-            high24h: item.high_24h,
-            low24h: item.low_24h,
-            priceChange24h: item.price_change_24h,
-            priceChangePercentage24h: item.price_change_percentage_24h,
-            marketCapChange24h: item.market_cap_change_24h,
-            marketCapChangePercentage24h: item.market_cap_change_percentage_24h,
-            circulatingSupply: item.circulating_supply,
-            totalSupply: item.total_supply,
-            maxSupply: item.max_supply,
-            ath: item.ath,
-            athChangePercentage: item.ath_change_percentage,
-            athDate: item.ath_date,
-            atl: item.atl,
-            atlChangePercentage: item.atl_change_percentage,
-            atlDate: item.atl_date,
-            lastUpdated: item.last_updated,
-            assetId: null,
-            });
-        });
+        let lastChangeTime = Date.now();
+        this.logger.log('Start sync job with CoinGecko...');
 
-        return this.upsertMany(dtoData);
+        let stalled = false;
+        const watcher = setInterval(() => {
+            if (Date.now() - lastChangeTime > STALL_TIMEOUT_MS) {
+                stalled = true;
+                this.logger.error(`No progress more than ${STALL_TIMEOUT_MS / 1000 / 60} min — stoping.`);
+            }
+        }, 10_000);
+
+        try {
+            return await Promise.race([
+                (async () => {
+                    const rawData = await this.coingeckoService.getMarketData((page, total) => {
+                        lastChangeTime = Date.now(); // update progress
+                        this.logger.log(`Sync progress: page ${page}, total ${total}`);
+                    });
+
+                    this.logger.log(`Received ${rawData.length} coins from CoinGecko.`);
+
+                    const dtoData: CreateMarketDataDto[] = rawData.map((item) => new CreateMarketDataDto({
+                        id: item.id,
+                        symbol: item.symbol,
+                        name: item.name,
+                        image: item.image,
+                        currentPrice: item.current_price,
+                        marketCap: item.market_cap,
+                        marketCapRank: item.market_cap_rank,
+                        fullyDilutedValuation: item.fully_diluted_valuation,
+                        totalVolume: item.total_volume,
+                        high24h: item.high_24h,
+                        low24h: item.low_24h,
+                        priceChange24h: item.price_change_24h,
+                        priceChangePercentage24h: item.price_change_percentage_24h,
+                        marketCapChange24h: item.market_cap_change_24h,
+                        marketCapChangePercentage24h: item.market_cap_change_percentage_24h,
+                        circulatingSupply: item.circulating_supply,
+                        totalSupply: item.total_supply,
+                        maxSupply: item.max_supply,
+                        ath: item.ath,
+                        athChangePercentage: item.ath_change_percentage,
+                        athDate: item.ath_date,
+                        atl: item.atl,
+                        atlChangePercentage: item.atl_change_percentage,
+                        atlDate: item.atl_date,
+                        lastUpdated: item.last_updated,
+                        assetId: null,
+                    }));
+
+                    let processed = 0;
+                    const chunkArray = <T,>(arr: T[], size: number) => {
+                        const res: T[][] = [];
+                        for (let i = 0; i < arr.length; i += size) res.push(arr.slice(i, i + size));
+                        return res;
+                    };
+
+                    const chunks = chunkArray(dtoData, 200);
+
+                    let chunkIndex = 0;
+                    for (const chunk of chunks) {
+                        chunkIndex++;
+
+                        if (stalled) {
+                            throw new RequestTimeoutException('Sync stopped: no progress for 5 min');
+                        }
+
+                        this.logger.log(`Processing chunk ${chunkIndex}/${chunks.length} (lenght ${chunk.length})...`);
+                        await this.upsertMany(chunk);
+                        processed += chunk.length;
+                        this.logger.log(`Total progress ${processed} data.`);
+
+                        lastChangeTime = Date.now(); // update progress after upsert
+                    }
+
+                    clearInterval(watcher);
+                    this.logger.log(`Sync compleated. All coins: ${processed}`);
+                    return { status: 'ok', processed };
+                })(),
+
+                new Promise((_, reject) =>
+                    setTimeout(() => {
+                        this.logger.error('Sync failed: general time out 30m in.');
+                        reject(new RequestTimeoutException('Sync timed out (30 minutes)'));
+                    }, TOTAL_TIMEOUT_MS),
+                ),
+            ]);
+        } catch (error) {
+            clearInterval(watcher);
+            if (error instanceof RequestTimeoutException) throw error;
+            // @ts-ignore
+            this.logger.error(`Sync error: ${error.message}`);
+            throw new InternalServerErrorException('Unexpected error during sync');
+        }
     }
 
     async upsertMany(dataArray: CreateMarketDataDto[]) {
-        function chunkArray<T>(array: T[], size: number): T[][] {
-            const result: T[][] = [];
-            for (let i = 0; i < array.length; i += size) {
-                result.push(array.slice(i, i + size));
-            }
-            return result;
-        }
-
-        const chunks = chunkArray(dataArray, 200); // по 200 записей
-
-        for (const chunk of chunks) {
-            const upserts = chunk.map((data) => {
+        const upserts = dataArray.map((data) => {
             const input: any = {
                 ...data,
                 athDate: new Date(data.athDate),
@@ -77,10 +135,9 @@ export class MarketDataService {
                 create: input,
                 update: input,
             });
-            });
+        });
 
-            await this.prisma.$transaction(upserts); // транзакция на 200 штук
-        }
+        await this.prisma.$transaction(upserts);
     }
 
     async findAll(query: GetMarketDataDto) {

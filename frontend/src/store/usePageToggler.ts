@@ -1,5 +1,13 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { i18n } from '../locales/i18n'
+
+const detectInitialLocale = (): 'ru' | 'en' => {
+    const saved = localStorage.getItem('locale')
+    if (saved === 'ru' || saved === 'en') return saved
+    const sys = navigator.language?.toLowerCase() || 'en'
+    return sys.startsWith('ru') ? 'ru' : 'en'
+}
 
 export const usePageToggler = defineStore('usePageToggler', () => {
 //-------------------------------list-------------------------------
@@ -49,6 +57,44 @@ export const usePageToggler = defineStore('usePageToggler', () => {
     const toggleCountSyncMarket = () => {
         toggleSyncMarket.value = !toggleSyncMarket.value
     }// toggle for market sync
+//-------------------------------theme toggler-------------------------------
+    const toggleTheme = ref(localStorage.getItem('theme') === 'dark')// toggler theme btn
+
+    const setTheme = (dark: boolean) => {
+        toggleTheme.value = dark
+        document.documentElement.classList.toggle('dark', dark)
+        localStorage.setItem('theme', dark ? 'dark' : 'light')
+    }//set theme and write it in html/local storage
+
+    const toggleThemeType = () => {
+        setTheme(!toggleTheme.value)
+    }//theme toggler
+
+    setTheme(toggleTheme.value)
+//-------------------------------locale toggler-------------------------------
+    // Состояние: текущий язык
+  const locale = ref<'ru' | 'en'>(detectInitialLocale())
+
+  // Устанавливаем язык
+  const setLocale = (code: 'ru' | 'en') => {
+    locale.value = code
+    i18n.global.locale.value = code
+    localStorage.setItem('locale', code)
+  }
+
+  // Переключаем язык
+  const toggleLocale = () => setLocale(locale.value === 'ru' ? 'en' : 'ru')
+
+  // Прокси для ToggleBtn (boolean v-model)
+  const isRu = computed<boolean>({
+    get: () => locale.value === 'ru',
+    set: (v) => setLocale(v ? 'ru' : 'en'),
+  })
+
+
+    // применяем язык сразу при создании стора
+    // @ts-ignore
+    setLocale(locale.value)
 
     return {
         toggle,
@@ -60,6 +106,9 @@ export const usePageToggler = defineStore('usePageToggler', () => {
         transactionToUpdate,
         portfolioToRemove,
         toggleSyncMarket,
+        toggleTheme,
+        locale,
+        isRu,
         toggleCount,
         toggleCountAddItem,
         toggleCountUpdateItem,
@@ -68,5 +117,9 @@ export const usePageToggler = defineStore('usePageToggler', () => {
         toggleCountAddPortfolio,
         toggleCountRemovePortfolio,
         toggleCountSyncMarket,
+        toggleThemeType,
+        setTheme,
+        setLocale,
+        toggleLocale,
     }
 })

@@ -29,7 +29,7 @@
 <style scoped>
     span {
         max-width: 100%;
-        border-left: 2px solid #000;
+        border-left: 2px solid var(--border-color);
         padding: 5px;
         place-items: center;
         text-align: center;
@@ -41,18 +41,41 @@
     .list-item :first-child {
         margin: auto;
         padding: 1px;
+        border-left: none;
     }
 
     .list-item:hover {
-        background-color: lightgray;
+        background-color: lightgrey;
         cursor: pointer;
+        color:  black;
+    }
+
+    .list-item:hover > span {
+        border-left: 2px solid black;
+    }
+
+    .list-item:hover > span:first-child {
+        border-left: none;
     }
 
     .type-buy {
         background-color: #e0f8e0;
+        color: black;
     }
+    .type-buy > span {
+        border-left: 2px solid black;
+    } 
 
     .type-sell {
         background-color: #f8e0e0;
+        color: black
+    }
+
+    .type-sell > span {
+        border-left: 2px solid black;
+    } 
+
+    .type-sell, .type-buy {
+        border-bottom: 2px solid black !important;
     }
 </style>

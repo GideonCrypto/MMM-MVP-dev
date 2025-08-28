@@ -138,6 +138,7 @@
         align-items: center;
         height: 100vh;
         background-color: lightgray;
+        color: black;
     }
 
     .login-menu, form {
@@ -176,6 +177,6 @@
     }
 
     p {
-        color: red;
+        color: var(--error-text-color);
     }
 </style>

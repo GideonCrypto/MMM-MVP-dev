@@ -2,9 +2,9 @@
     <div class="market-main-container">
         <div class="top-container">
             <div class="search-container">
-                <h3>Market data from CoinGecko api</h3>
+                <h3>{{t('market.title')}}</h3>
                 <div class="search-wrapper">
-                    <label>Search your coin by name:</label>
+                    <label>{{t('market.search')}}</label>
                     <input
                         type="text"
                         v-model="filters.name"
@@ -15,9 +15,9 @@
             </div>
 
             <div class="settings-container">
-                <h5>Last sync: {{ lastUpdated }}</h5>
+                <h5>{{t('market.lastSync')}} {{ lastUpdated }}</h5>
                 <button class="market-sync" @click="loadDataSync" :disabled="toggleSyncMarket">
-                Sync data with CoinGecko
+                {{t('market.syncBtn')}}
                 </button>
             </div>
         </div>
@@ -26,9 +26,9 @@
             <template v-if="toggleSyncMarket">
                 <div class="loading">
                     <p>
-                        Table sync job is running. Estimated time: 15 minutes.
+                        {{t('market.syncLoad1')}}
                         <br>
-                        You can work with other pages of the app and come back later.
+                        {{t('market.syncLoad2')}}
                     </p>
                 </div>
 
@@ -36,13 +36,13 @@
             <template v-else>
                 <ul class="list-container">
                     <li class="list-item sorting">
-                        <span @click="sortBy('name')">name</span>
-                        <span @click="sortBy('currentPrice')">current price</span>
-                        <span @click="sortBy('marketCap')">market cap</span>
-                        <span>high 24h</span>
-                        <span>low 24h</span>
-                        <span>price change 24h</span>
-                        <span>price change percent 24h</span>
+                        <span @click="sortBy('name')">{{t('table.name')}}</span>
+                        <span @click="sortBy('currentPrice')">{{t('table.price')}}</span>
+                        <span @click="sortBy('marketCap')">{{t('table.marketCap')}}</span>
+                        <span>{{t('table.high24h')}}</span>
+                        <span>{{t('table.low24h')}}</span>
+                        <span>{{t('table.priceChange24h')}}</span>
+                        <span>{{t('table.priceChangePercent24h')}}</span>
                     </li>
 
                     <MarketListItem
@@ -53,7 +53,7 @@
                 </ul>
 
                 <div class="pages-container">
-                    <button class="page-btn" @click="onPageDecr">Previous page</button>
+                    <button class="page-btn" @click="onPageDecr">{{t('market.prevPage')}}</button>
                     <input
                         type="number"
                         class="page-number"
@@ -62,8 +62,8 @@
                         :min="1"
                         :max="totalPages"
                     />
-                    <button class="page-btn" @click="onPageInc">Next page</button>
-                    <button class="page-btn" @click="resetSorting">Reset</button>
+                    <button class="page-btn" @click="onPageInc">{{t('market.nextPage')}}</button>
+                    <button class="page-btn" @click="resetSorting">{{t('market.reset')}}</button>
                 </div>
             </template>
         </div>
@@ -78,6 +78,10 @@
     import { api } from '@/components/api/api.ts'
     import { usePageToggler } from '@/store/usePageToggler.ts'
     import { storeToRefs } from 'pinia'
+    import { i18n } from '../../locales/i18n'
+    import { useI18n } from 'vue-i18n'
+
+    const { t } = useI18n()
 
     const toggler = usePageToggler()
     const { toggleSyncMarket, toggleCountSyncMarket } = storeToRefs(toggler)
@@ -178,7 +182,7 @@
         display: grid;
         gap: 10px;
         grid-template-columns: 3fr 1fr;
-        border: 2px solid black;
+        border: 2px solid var(--border-color);
         justify-content: center;
     }
 
@@ -197,7 +201,7 @@
     }
 
     .settings-container {
-        border-left: 2px solid black;
+        border-left: 2px solid var(--border-color);
         display: flex;
         flex-direction: column;
         justify-content: space-around;
@@ -211,7 +215,7 @@
     .bot-container {
         display: grid;
         grid-template-rows:1fr auto ;
-        border: 2px solid black;
+        border: 2px solid var(--border-color);
     }
 
     .loading {
@@ -230,13 +234,12 @@
     .list-item {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        border-bottom: 2px solid black;
-        
+        border-bottom: 2px solid var(--border-color);
     }
 
     span {
         display: grid;
-        border-left: 2px solid #000;
+        border-left: 2px solid var(--border-color);
         padding: 2px;
         place-items: center;
         text-align: center;
@@ -249,7 +252,7 @@
 
     .sorting {
         position: sticky;
-        background: lightgray;
+        background: var(--table-header-color);
     }
 
     .pages-container {
@@ -259,16 +262,27 @@
     }
 
     button, .page-number {
-        background: none;
+        background: var(--bg-color);
+        color: var(--text-color);
         border-radius: 5px;
-        border: 1px solid black;
+        border: 1px solid var(--border-color);
         text-align: center;
         padding: 5px;
         margin: 0px 5px;
     }
 
     button:hover {
-        background-color: lightgray;
+        background-color: var(--table-header-color);
+        color: black;
+    }
+
+    button:disabled {
+        text-decoration: line-through;
+    }
+
+    button:disabled:hover {
+        text-decoration: line-through;
+        color: var(--error-text-color);
     }
 
     .page-number {

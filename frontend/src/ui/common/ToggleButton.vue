@@ -1,5 +1,5 @@
 <template>
-    <button @click="modelValue = !modelValue" class="toggle-button">
+    <button @click="$emit('click')" class="toggle-button">
         <transition name="fade-slide" mode="out-in">
         <span :key="modelValue">
             {{ modelValue ? text.first : text.second }}
@@ -9,9 +9,10 @@
 </template>
 
 <script setup>
+    defineEmits(['click'])
     const modelValue = defineModel()
     const props = defineProps({
-        text: Object
+    text: Object
     })
 </script>
 

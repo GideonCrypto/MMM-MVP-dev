@@ -2,12 +2,12 @@
     <li class="list-item" :class="{ 'empty-item': isEmpty }">
         <template v-if="!isEmpty">
             <span :title="name">{{ name }}</span>
-            <span :title="currentPrice">{{ currentPrice }}</span>
-            <span :title="marketCap">{{ marketCap }}</span>
-            <span :title="high24h">{{ high24h }}</span>
-            <span :title="low24h">{{ low24h }}</span>
-            <span :title="priceChange24h">{{ priceChange24h }}</span>
-            <span :title="priceChangePercentage24h">{{ priceChangePercentage24h }}</span>
+            <span :title="formatValue(currentPrice)">{{ formatValue(currentPrice) }}</span>
+            <span :title="formatValue(marketCap)">{{ formatValue(marketCap) }}</span>
+            <span :title="formatValue(high24h)">{{ formatValue(high24h) }}</span>
+            <span :title="formatValue(low24h)">{{ formatValue(low24h) }}</span>
+            <span :title="formatValue(priceChange24h)">{{ formatValue(priceChange24h) }}</span>
+            <span :title="formatValue(priceChangePercentage24h)">{{ formatValue(priceChangePercentage24h) }}</span>
         </template>
         <template v-else>
             <span v-for="i in 8" :key="i">&nbsp;</span>
@@ -28,6 +28,22 @@
     })
 
     const isEmpty = props.__empty === true
+
+    function formatValue(value) {
+        const number = Number(value)
+        if (isNaN(number)) return value
+
+        const absNumber = Math.abs(number)
+        let formatted = number
+
+        if (absNumber >= 1.0e12) formatted = (number / 1.0e12).toFixed(3) + "T"
+        else if (absNumber >= 1.0e9) formatted = (number / 1.0e9).toFixed(3) + "B"
+        else if (absNumber >= 1.0e6) formatted = (number / 1.0e6).toFixed(3) + "M"
+        else if (absNumber >= 1.0e3) formatted = (number / 1.0e3).toFixed(3) + "K"
+        else formatted = number.toFixed(3)
+
+        return formatted
+    }
 </script>
 
 <style scoped>
@@ -41,7 +57,7 @@
         text-align: center;
         height: 100%;
         margin: auto 0;
-        border-left: 2px solid #000;
+        border-left: 2px solid var(--border-color);
         overflow-wrap: break-word;
         white-space: normal;
         justify-content: center;
@@ -61,6 +77,15 @@
     }
 
     .list-item:hover {
-        background-color: lightgray;
+        background-color: var(--hover-bg-color);
+        color: black;
+    }
+
+    .list-item:hover > span {
+        border-left: 1px solid black;
+    }
+
+    .list-item:hover > span:first-child {
+        border-left: none;
     }
 </style>

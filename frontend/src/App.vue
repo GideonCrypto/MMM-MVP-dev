@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-// @ts-ignore
+    // @ts-ignore
     import Sidebar from '@/components/sidebar/Sidebar.vue';
     // @ts-ignore
     import Login from '@/components/login/LoginPage.vue';

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <span>Last updated: {{ lastUpdated }}</span>
+        <span>{{t('dashboard.lastUpdated')}} {{ lastUpdated }}</span>
         <Bar :data="chartData" :options="chartOptions" />
     </div>
 </template>
@@ -18,6 +18,11 @@
         Tooltip,
         Legend,
     } from 'chart.js'
+    import { i18n } from '../../../locales/i18n'
+    import { useI18n } from 'vue-i18n'
+
+    const { t } = useI18n()
+
 
     ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend)
 
@@ -33,13 +38,13 @@
     const chartData = computed(() => ({
         labels: [''],
         datasets: [
-                { label: 'Extreme Fear', data: [20], backgroundColor: 'darkred', stack: 'index' },
-                { label: 'Fear', data: [20], backgroundColor: 'red', stack: 'index' },
-                { label: 'Neutral', data: [20], backgroundColor: 'orange', stack: 'index' },
-                { label: 'Greed', data: [20], backgroundColor: 'lightgreen', stack: 'index' },
-                { label: 'Extreme Greed', data: [20], backgroundColor: 'green', stack: 'index' },
+                { label: t('dashboard.exFear'), data: [20], backgroundColor: 'darkred', stack: 'index' },
+                { label: t('dashboard.fear'), data: [20], backgroundColor: 'red', stack: 'index' },
+                { label: t('dashboard.neutral'), data: [20], backgroundColor: 'orange', stack: 'index' },
+                { label: t('dashboard.greed'), data: [20], backgroundColor: 'lightgreen', stack: 'index' },
+                { label: t('dashboard.exGreed'), data: [20], backgroundColor: 'green', stack: 'index' },
                 {
-                    label: 'Current Value',
+                    label: t('dashboard.currentVal'),
                     data: [currentValue.value],
                     backgroundColor: 'black',
                     type: 'bar',
@@ -67,6 +72,8 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        background-color: white;
+        border-radius: 5px;
     }
 
     span {

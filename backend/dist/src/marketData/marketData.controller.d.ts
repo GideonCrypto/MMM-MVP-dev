@@ -4,7 +4,7 @@ export declare class MarketDataController {
     private readonly service;
     constructor(service: MarketDataService);
     top(): Promise<any>;
-    sync(): Promise<void>;
+    sync(): Promise<unknown>;
     findAll(query: GetMarketDataDto): Promise<{
         data: {
             symbol: string;
