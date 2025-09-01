@@ -1,10 +1,10 @@
 {
-  "name": "MMM",
+  "name": "mmm",
   "private": true,
-  "main": "backend/electron/main.js",
-  "author": "Gideon",
+  "version": "0.7.0",
   "description": "Money Movement Monitor desktop app",
-  "version": "0.6.0",
+  "author": "Gideon",
+  "main": "backend/electron/main.js",
   "scripts": {
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run start:dev",

@@ -5,7 +5,7 @@ import ru from './ru'
 export const i18n = createI18n({
   legacy: false,              // Composition API
   globalInjection: true,      // чтобы можно было использовать $t в шаблонах
-  locale: 'en',               // временно, актуальный язык выставим из стора до mount
+  locale: 'en',
   fallbackLocale: 'en',
   messages: { en, ru },
 })

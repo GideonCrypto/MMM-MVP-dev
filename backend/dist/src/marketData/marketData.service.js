@@ -36,18 +36,25 @@ let MarketDataService = MarketDataService_1 = class MarketDataService {
         const watcher = setInterval(() => {
             if (Date.now() - lastChangeTime > STALL_TIMEOUT_MS) {
                 stalled = true;
-                this.logger.error(`No progress more than ${STALL_TIMEOUT_MS / 1000 / 60} min — stoping.`);
+                this.logger.error(`No progress more than ${STALL_TIMEOUT_MS / 1000 / 60} min — stopping.`);
             }
         }, 10_000);
+        let timeoutId;
+        const timeoutPromise = new Promise((_, reject) => {
+            timeoutId = setTimeout(() => {
+                this.logger.error('Sync failed: general time out 30m in.');
+                reject(new common_1.RequestTimeoutException('Sync timed out (30 minutes)'));
+            }, TOTAL_TIMEOUT_MS);
+        });
         try {
-            return await Promise.race([
+            const result = await Promise.race([
                 (async () => {
                     const rawData = await this.coingeckoService.getMarketData((page, total) => {
                         lastChangeTime = Date.now();
                         this.logger.log(`Sync progress: page ${page}, total ${total}`);
                     });
                     this.logger.log(`Received ${rawData.length} coins from CoinGecko.`);
-                    const dtoData = rawData.map((item) => new marketData_dto_1.CreateMarketDataDto({
+                    const dtoData = rawData.map(item => new marketData_dto_1.CreateMarketDataDto({
                         id: item.id,
                         symbol: item.symbol,
                         name: item.name,
@@ -89,24 +96,24 @@ let MarketDataService = MarketDataService_1 = class MarketDataService {
                         if (stalled) {
                             throw new common_1.RequestTimeoutException('Sync stopped: no progress for 5 min');
                         }
-                        this.logger.log(`Processing chunk ${chunkIndex}/${chunks.length} (lenght ${chunk.length})...`);
+                        this.logger.log(`Processing chunk ${chunkIndex}/${chunks.length} (length ${chunk.length})...`);
                         await this.upsertMany(chunk);
                         processed += chunk.length;
                         this.logger.log(`Total progress ${processed} data.`);
                         lastChangeTime = Date.now();
                     }
                     clearInterval(watcher);
-                    this.logger.log(`Sync compleated. All coins: ${processed}`);
+                    clearTimeout(timeoutId);
+                    this.logger.log(`Sync completed. All coins: ${processed}`);
                     return { status: 'ok', processed };
                 })(),
-                new Promise((_, reject) => setTimeout(() => {
-                    this.logger.error('Sync failed: general time out 30m in.');
-                    reject(new common_1.RequestTimeoutException('Sync timed out (30 minutes)'));
-                }, TOTAL_TIMEOUT_MS)),
+                timeoutPromise,
             ]);
+            return result;
         }
         catch (error) {
             clearInterval(watcher);
+            clearTimeout(timeoutId);
             if (error instanceof common_1.RequestTimeoutException)
                 throw error;
             this.logger.error(`Sync error: ${error.message}`);

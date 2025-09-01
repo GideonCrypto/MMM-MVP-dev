@@ -27,3 +27,6 @@ win:
   icon: backend/electron/img/icon-256x256.ico
   target:
     - nsis
+
+nsis:
+  runAfterFinish: false

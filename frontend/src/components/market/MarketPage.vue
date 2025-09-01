@@ -273,7 +273,7 @@
 
     button:hover {
         background-color: var(--table-header-color);
-        color: black;
+        color: var(--text-color);
     }
 
     button:disabled {

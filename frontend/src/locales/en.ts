@@ -30,7 +30,7 @@ export default {
         title: 'Market data from the CoinGecko API',
         search: 'Search your coin by name:',
         syncBtn: 'Sync data with CoinGecko',
-        syncLoad1: 'Table sync is running. Estimated time: 15 minutes.',
+        syncLoad1: 'Table sync is running. Estimated time: 20 minutes.',
         syncLoad2: 'You can use other pages of the app and come back later.',
         nextPage: 'Next page',
         prevPage: 'Previous page',
@@ -84,6 +84,13 @@ export default {
             totalRealized: 'Total realized:',
             unrealizedProfit: 'Unrealized/Realized profit:',
             coinsUsdtValue: 'Coin/USDT value:',
+        },
+        portfolioMetrics: {
+            currentBalance: 'Current balance:',
+            totalProfit: 'Total profit:',
+            realisedProfit: 'Realised profit:',
+            unrealisedProfit: 'Unrealised profit:',
+            totalInvested: 'Total invested:',
         },
         portfolioModal: {
             titleAdd: 'Add portfolio',
