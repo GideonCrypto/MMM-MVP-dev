@@ -36,11 +36,13 @@ let DatabaseService = class DatabaseService {
         const assets = await this.prisma.asset.findMany();
         const portfolios = await this.prisma.portfolio.findMany();
         const transactions = await this.prisma.transaction.findMany();
+        const marketData = await this.prisma.marketData.findMany();
         await this.exportToCSV('User', users);
         await this.exportToCSV('Asset', assets);
         await this.exportToCSV('Portfolio', portfolios);
         await this.exportToCSV('Transaction', transactions);
-        return '✅ All data exported too /exports';
+        await this.exportToCSV('MarketData', marketData);
+        return '✅ All data exported to /exports';
     }
     async importCSV(modelName) {
         const filePath = path.join(__dirname, '..', '..', 'exports', `${modelName}.csv`);
@@ -56,6 +58,7 @@ let DatabaseService = class DatabaseService {
                 case 'transaction':
                     return { id: Number(data.id) };
                 case 'asset':
+                case 'marketdata':
                     return { id: data.id };
                 default:
                     throw new Error(`Unknown model for get key: ${modelName}`);
@@ -72,6 +75,7 @@ let DatabaseService = class DatabaseService {
                     asset: this.prisma.asset,
                     portfolio: this.prisma.portfolio,
                     transaction: this.prisma.transaction,
+                    marketdata: this.prisma.marketData,
                 };
                 const key = modelName.toLowerCase();
                 if (!(key in modelMap)) {
@@ -79,7 +83,7 @@ let DatabaseService = class DatabaseService {
                 }
                 const modelClient = modelMap[key];
                 for (const row of rows) {
-                    const data = this.parseRow(row);
+                    const data = this.parseRow(row, modelName);
                     try {
                         const uniqueWhere = getUniqueKey(modelName, data);
                         await modelClient.upsert({
@@ -102,40 +106,97 @@ let DatabaseService = class DatabaseService {
         });
     }
     async importAllFromCSV() {
-        const order = ['User', 'Asset', 'Portfolio', 'Transaction'];
+        const order = ['User', 'Asset', 'Portfolio', 'Transaction', 'MarketData'];
         for (const model of order) {
             console.log(`📥 Import: ${model}`);
             await this.importCSV(model);
         }
-        return '✅ All db import compleate';
+        return '✅ All db import complete';
     }
-    parseRow(row) {
+    parseRow(row, modelName) {
         const parsed = { ...row };
+        const schema = {
+            user: {
+                id: "number",
+                name: "string",
+                password: "string",
+                createdAt: "date",
+            },
+            asset: {
+                id: "string",
+                name: "string",
+                symbol: "string",
+                marketId: "string",
+                userId: "number",
+            },
+            portfolio: {
+                id: "number",
+                name: "string",
+                userId: "number",
+                createdAt: "date",
+            },
+            transaction: {
+                id: "number",
+                type: "string",
+                assetId: "string",
+                quantity: "float",
+                price: "float",
+                timestamp: "date",
+                userId: "number",
+                portfolioId: "number",
+            },
+            marketdata: {
+                id: "string",
+                symbol: "string",
+                name: "string",
+                image: "string",
+                currentPrice: "float",
+                marketCap: "float",
+                marketCapRank: "number",
+                fullyDilutedValuation: "float",
+                totalVolume: "float",
+                high24h: "float",
+                low24h: "float",
+                priceChange24h: "float",
+                priceChangePercentage24h: "float",
+                marketCapChange24h: "float",
+                marketCapChangePercentage24h: "float",
+                circulatingSupply: "float",
+                totalSupply: "float",
+                maxSupply: "float",
+                ath: "float",
+                athChangePercentage: "float",
+                athDate: "date",
+                atl: "float",
+                atlChangePercentage: "float",
+                atlDate: "date",
+                lastUpdated: "date",
+                assetId: "string",
+            }
+        };
+        const modelSchema = schema[modelName.toLowerCase()];
         for (const key in parsed) {
-            let value = parsed[key];
-            if (value === 'null') {
+            const value = parsed[key];
+            if (value === 'null' || value === '') {
                 parsed[key] = null;
+                continue;
             }
-            else if (value === '') {
-                parsed[key] = null;
+            switch (modelSchema?.[key]) {
+                case "number":
+                    parsed[key] = Number(value);
+                    break;
+                case "float":
+                    parsed[key] = parseFloat(value);
+                    break;
+                case "date":
+                    parsed[key] = new Date(value);
+                    break;
+                case "string":
+                    parsed[key] = String(value);
+                    break;
+                default:
+                    parsed[key] = value;
             }
-            else if (!isNaN(value) && typeof value !== 'boolean') {
-                parsed[key] = Number(value);
-            }
-            else if (typeof value === 'string' && /\d{4}-\d{2}-\d{2}T/.test(value)) {
-                const date = new Date(value);
-                if (!isNaN(date.getTime()))
-                    parsed[key] = date;
-            }
-            else if (typeof value === 'string') {
-                const timestamp = Date.parse(value);
-                if (!isNaN(timestamp)) {
-                    parsed[key] = new Date(timestamp);
-                }
-            }
-        }
-        if ('password' in parsed && parsed.password !== null) {
-            parsed.password = String(parsed.password);
         }
         return parsed;
     }

@@ -42,29 +42,51 @@ export function useAssetMetrics(transactions: Transaction[], currentPrice: numbe
         .reduce((sum, tx) => sum + tx.quantity, 0)
     const roiRaw = totalInvested > 0 ? (totalProfit / totalInvested) * 100 : 0
 
-    // функция округления до 3 знаков
-    const round3 = (num: number) => Math.round(num * 1000) / 1000
+    // 🔥 нормализация чисел
+    const normalizeNumber = (num: number): string => {
+        if (!isFinite(num)) return "0"
+
+        let str = num.toString()
+        if (str.includes("e")) {
+            str = num.toFixed(30) // разворачиваем экспоненту
+        }
+
+        // "нормальные" числа → 2 знака после запятой
+        if (Math.abs(num) >= 0.001) {
+            return parseFloat(str).toFixed(2)
+        }
+
+        // очень маленькие числа → ищем первые значащие цифры после нулей
+        const match = str.match(/0\.(0*)(\d+)/)
+        if (match) {
+            const zeros = match[1].length
+            const digits = match[2].slice(0, 2) // только 2 цифры после нулей
+            return `0.${"0".repeat(zeros)}${digits}`
+        }
+
+        return str
+    }
 
     return {
-        totalInvested: round3(totalInvested),
-        totalSold: round3(
+        totalInvested: normalizeNumber(totalInvested),
+        totalSold: normalizeNumber(
             transactions
                 .filter(tx => tx.type === 'sell')
                 .reduce((sum, tx) => sum + tx.price * tx.quantity, 0)
         ),
-        coinsBought: round3(coinsBought),
-        coinsSold: round3(
+        coinsBought: normalizeNumber(coinsBought),
+        coinsSold: normalizeNumber(
             transactions
                 .filter(tx => tx.type === 'sell')
                 .reduce((sum, tx) => sum + tx.quantity, 0)
         ),
-        remainingCoins: round3(remainingCoins),
-        averageBuyPrice: totalInvested > 0 ? round3(totalInvested / coinsBought) : 0,
-        currentValue: round3(currentValue),
-        unrealizedProfit: round3(unrealizedProfit),
-        realizedProfit: round3(realizedProfit),
-        totalProfit: round3(totalProfit),
-        roi: `${round3(roiRaw)}%`,
-        roiRaw: round3(roiRaw),
+        remainingCoins: normalizeNumber(remainingCoins),
+        averageBuyPrice: totalInvested > 0 ? normalizeNumber(totalInvested / coinsBought) : "0",
+        currentValue: normalizeNumber(currentValue),
+        unrealizedProfit: normalizeNumber(unrealizedProfit),
+        realizedProfit: normalizeNumber(realizedProfit),
+        totalProfit: normalizeNumber(totalProfit),
+        roi: `${normalizeNumber(roiRaw)}%`,
+        roiRaw: roiRaw, // сырое значение для вычислений
     }
 }

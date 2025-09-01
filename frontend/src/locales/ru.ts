@@ -30,7 +30,7 @@ export default {
         title: 'Рыночные данные из API CoinGecko',
         search: 'Поиск монет по имени:',
         syncBtn: 'Синхронизировать с CoinGecko',
-        syncLoad1: 'Идёт синхронизация данных. Ожидаемое время: 15 минут.',
+        syncLoad1: 'Идёт синхронизация данных. Ожидаемое время: 20 минут.',
         syncLoad2: 'Вы можете пользоваться другими страницами приложения и вернуться позже.',
         nextPage: 'Следующая страница',
         prevPage: 'Предыдущая страница',
@@ -84,6 +84,13 @@ export default {
             totalRealized: 'Всего реализовано:',
             unrealizedProfit: 'Нереализованная/реализованная прибыль:',
             coinsUsdtValue: 'Стоимость в USDT:',
+        },
+        portfolioMetrics: {
+            currentBalance: 'Текущий баланс:',
+            totalProfit: 'Текущая прибыль:',
+            realisedProfit: 'Реализованная прибыль:',
+            unrealisedProfit: 'Нереализованная прибыль:',
+            totalInvested: 'Всего инвестировано:',
         },
         portfolioModal: {
             titleAdd: 'Добавить портфель',

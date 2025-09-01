@@ -18,104 +18,111 @@ export class MarketDataService {
     }
 
     async syncMarketData() {
-        const TOTAL_TIMEOUT_MS = 30 * 60 * 1000; // 30 min
-        const STALL_TIMEOUT_MS = 5 * 60 * 1000;  // 5 min
+    const TOTAL_TIMEOUT_MS = 30 * 60 * 1000; // 30 min
+    const STALL_TIMEOUT_MS = 5 * 60 * 1000;  // 5 min
 
-        let lastChangeTime = Date.now();
-        this.logger.log('Start sync job with CoinGecko...');
+    let lastChangeTime = Date.now();
+    this.logger.log('Start sync job with CoinGecko...');
 
-        let stalled = false;
-        const watcher = setInterval(() => {
-            if (Date.now() - lastChangeTime > STALL_TIMEOUT_MS) {
-                stalled = true;
-                this.logger.error(`No progress more than ${STALL_TIMEOUT_MS / 1000 / 60} min — stoping.`);
-            }
-        }, 10_000);
+    let stalled = false;
+    const watcher = setInterval(() => {
+        if (Date.now() - lastChangeTime > STALL_TIMEOUT_MS) {
+            stalled = true;
+            this.logger.error(`No progress more than ${STALL_TIMEOUT_MS / 1000 / 60} min — stopping.`);
+        }
+    }, 10_000);
 
-        try {
-            return await Promise.race([
-                (async () => {
-                    const rawData = await this.coingeckoService.getMarketData((page, total) => {
-                        lastChangeTime = Date.now(); // update progress
-                        this.logger.log(`Sync progress: page ${page}, total ${total}`);
-                    });
+    // общий таймаут
+    let timeoutId: NodeJS.Timeout | undefined;
+    const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+            this.logger.error('Sync failed: general time out 30m in.');
+            reject(new RequestTimeoutException('Sync timed out (30 minutes)'));
+        }, TOTAL_TIMEOUT_MS);
+    });
 
-                    this.logger.log(`Received ${rawData.length} coins from CoinGecko.`);
+    try {
+        const result = await Promise.race([
+            (async () => {
+                const rawData = await this.coingeckoService.getMarketData((page, total) => {
+                    lastChangeTime = Date.now(); // update progress
+                    this.logger.log(`Sync progress: page ${page}, total ${total}`);
+                });
 
-                    const dtoData: CreateMarketDataDto[] = rawData.map((item) => new CreateMarketDataDto({
-                        id: item.id,
-                        symbol: item.symbol,
-                        name: item.name,
-                        image: item.image,
-                        currentPrice: item.current_price,
-                        marketCap: item.market_cap,
-                        marketCapRank: item.market_cap_rank,
-                        fullyDilutedValuation: item.fully_diluted_valuation,
-                        totalVolume: item.total_volume,
-                        high24h: item.high_24h,
-                        low24h: item.low_24h,
-                        priceChange24h: item.price_change_24h,
-                        priceChangePercentage24h: item.price_change_percentage_24h,
-                        marketCapChange24h: item.market_cap_change_24h,
-                        marketCapChangePercentage24h: item.market_cap_change_percentage_24h,
-                        circulatingSupply: item.circulating_supply,
-                        totalSupply: item.total_supply,
-                        maxSupply: item.max_supply,
-                        ath: item.ath,
-                        athChangePercentage: item.ath_change_percentage,
-                        athDate: item.ath_date,
-                        atl: item.atl,
-                        atlChangePercentage: item.atl_change_percentage,
-                        atlDate: item.atl_date,
-                        lastUpdated: item.last_updated,
-                        assetId: null,
-                    }));
+                this.logger.log(`Received ${rawData.length} coins from CoinGecko.`);
 
-                    let processed = 0;
-                    const chunkArray = <T,>(arr: T[], size: number) => {
-                        const res: T[][] = [];
-                        for (let i = 0; i < arr.length; i += size) res.push(arr.slice(i, i + size));
-                        return res;
-                    };
+                const dtoData: CreateMarketDataDto[] = rawData.map(item => new CreateMarketDataDto({
+                    id: item.id,
+                    symbol: item.symbol,
+                    name: item.name,
+                    image: item.image,
+                    currentPrice: item.current_price,
+                    marketCap: item.market_cap,
+                    marketCapRank: item.market_cap_rank,
+                    fullyDilutedValuation: item.fully_diluted_valuation,
+                    totalVolume: item.total_volume,
+                    high24h: item.high_24h,
+                    low24h: item.low_24h,
+                    priceChange24h: item.price_change_24h,
+                    priceChangePercentage24h: item.price_change_percentage_24h,
+                    marketCapChange24h: item.market_cap_change_24h,
+                    marketCapChangePercentage24h: item.market_cap_change_percentage_24h,
+                    circulatingSupply: item.circulating_supply,
+                    totalSupply: item.total_supply,
+                    maxSupply: item.max_supply,
+                    ath: item.ath,
+                    athChangePercentage: item.ath_change_percentage,
+                    athDate: item.ath_date,
+                    atl: item.atl,
+                    atlChangePercentage: item.atl_change_percentage,
+                    atlDate: item.atl_date,
+                    lastUpdated: item.last_updated,
+                    assetId: null,
+                }));
 
-                    const chunks = chunkArray(dtoData, 200);
+                let processed = 0;
+                const chunkArray = <T,>(arr: T[], size: number) => {
+                    const res: T[][] = [];
+                    for (let i = 0; i < arr.length; i += size) res.push(arr.slice(i, i + size));
+                    return res;
+                };
 
-                    let chunkIndex = 0;
-                    for (const chunk of chunks) {
-                        chunkIndex++;
+                const chunks = chunkArray(dtoData, 200);
 
-                        if (stalled) {
-                            throw new RequestTimeoutException('Sync stopped: no progress for 5 min');
-                        }
+                let chunkIndex = 0;
+                for (const chunk of chunks) {
+                    chunkIndex++;
 
-                        this.logger.log(`Processing chunk ${chunkIndex}/${chunks.length} (lenght ${chunk.length})...`);
-                        await this.upsertMany(chunk);
-                        processed += chunk.length;
-                        this.logger.log(`Total progress ${processed} data.`);
-
-                        lastChangeTime = Date.now(); // update progress after upsert
+                    if (stalled) {
+                        throw new RequestTimeoutException('Sync stopped: no progress for 5 min');
                     }
 
-                    clearInterval(watcher);
-                    this.logger.log(`Sync compleated. All coins: ${processed}`);
-                    return { status: 'ok', processed };
-                })(),
+                    this.logger.log(`Processing chunk ${chunkIndex}/${chunks.length} (length ${chunk.length})...`);
+                    await this.upsertMany(chunk);
+                    processed += chunk.length;
+                    this.logger.log(`Total progress ${processed} data.`);
 
-                new Promise((_, reject) =>
-                    setTimeout(() => {
-                        this.logger.error('Sync failed: general time out 30m in.');
-                        reject(new RequestTimeoutException('Sync timed out (30 minutes)'));
-                    }, TOTAL_TIMEOUT_MS),
-                ),
-            ]);
-        } catch (error) {
-            clearInterval(watcher);
-            if (error instanceof RequestTimeoutException) throw error;
-            // @ts-ignore
-            this.logger.error(`Sync error: ${error.message}`);
-            throw new InternalServerErrorException('Unexpected error during sync');
-        }
+                    lastChangeTime = Date.now(); // update progress after upsert
+                }
+
+                clearInterval(watcher);
+                clearTimeout(timeoutId); // <--- ОЧИСТКА ГЛАВНОГО ТАЙМАУТА
+                this.logger.log(`Sync completed. All coins: ${processed}`);
+                return { status: 'ok', processed };
+            })(),
+            timeoutPromise,
+        ]);
+
+        return result;
+    } catch (error) {
+        clearInterval(watcher);
+        clearTimeout(timeoutId); // <--- чтобы при ошибке тоже очищался
+        if (error instanceof RequestTimeoutException) throw error;
+        // @ts-ignore
+        this.logger.error(`Sync error: ${error.message}`);
+        throw new InternalServerErrorException('Unexpected error during sync');
     }
+}
 
     async upsertMany(dataArray: CreateMarketDataDto[]) {
         const upserts = dataArray.map((data) => {

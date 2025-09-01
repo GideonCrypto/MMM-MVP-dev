@@ -13,6 +13,28 @@
                         {{ name.name }}
                     </option>
                 </select>
+                <div class="portfolio-metrics" v-if="currentPortfolioData">
+                    <div class="metrics-row">
+                        <span class="title">{{t('portfolio.portfolioMetrics.currentBalance')}}</span>
+                        <span class="value">{{ currentPortfolioData.currentBalance.toFixed(2) }} USDT</span>
+                    </div>
+                    <div class="metrics-row">
+                        <span class="title">{{t('portfolio.portfolioMetrics.totalProfit')}}</span>
+                        <span class="value">{{ currentPortfolioData.totalProfit.toFixed(2) }} USDT</span>
+                    </div>
+                    <div class="metrics-row">
+                        <span class="title">{{t('portfolio.portfolioMetrics.realisedProfit')}}</span>
+                        <span class="value">{{ currentPortfolioData.realisedProfit.toFixed(2) }} USDT</span>
+                    </div>
+                    <div class="metrics-row">
+                        <span class="title">{{t('portfolio.portfolioMetrics.unrealisedProfit')}}</span>
+                        <span class="value">{{ currentPortfolioData.unrealisedProfit.toFixed(2) }} USDT</span>
+                    </div>
+                    <div class="metrics-row">
+                        <span class="title">{{t('portfolio.portfolioMetrics.totalInvested')}}</span>
+                        <span class="value">{{ currentPortfolioData.totalInvested.toFixed(2) }} USDT</span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="transaction">
@@ -24,37 +46,52 @@
 </template>
 
 <script setup>
-    import { usePageToggler } from '@/store/usePageToggler.ts'
     import { storeToRefs } from 'pinia'
-    import { computed, onMounted, ref } from 'vue'
-    import { api } from '@/components/api/api.ts'
-    import AddPortfolioMenu from '@/components/portfolio/items/AddPortfolioModal.vue'
+    import AddPortfolioMenu from '../items/AddPortfolioModal.vue'
+    import { ref, computed, watch } from 'vue'
     import { useTransactionsStore } from '@/store/useTransactionsStore.ts'
-    import { i18n } from '../../../locales/i18n'
+    import { usePageToggler } from '@/store/usePageToggler.ts'
     import { useI18n } from 'vue-i18n'
 
     const { t } = useI18n()
-    const selectedPortfolioId = ref('all')
-    // ----------------------------------store
-    // ----------- transactions
-    const { portfolioNames } = storeToRefs(useTransactionsStore())
 
+    // ---------------------------------- Store
     const TransactionsStore = useTransactionsStore()
-    
-    function onFilterChange(e) {
-        TransactionsStore.setPortfolioFilter(e.target.value)
+    const { portfolioNames, portfolioSummary } = storeToRefs(TransactionsStore)
+
+    // ---------------------------------- Choosed portfolio
+    const selectedPortfolioId = ref('all')
+
+    // ---------------------------------- Current portfolio data
+    const currentPortfolioData = computed(() => {
+    if (selectedPortfolioId.value === 'all') {
+        return portfolioSummary.value['all'] || null
     }
+    // search portfolio by id
+    const portfolios = Object.values(portfolioSummary.value)
+    return portfolios.find(p => p.portfolioId === selectedPortfolioId.value) || null
+    })
+
+    // ---------------------------------- filter func
+    function onFilterChange(e) {
+        const val = e.target.value
+        selectedPortfolioId.value = val === 'all' ? 'all' : Number(val)
+        TransactionsStore.setPortfolioFilter(selectedPortfolioId.value)
+    }
+
     function filterAssetsByPortfolio() {
         TransactionsStore.setPortfolioFilter(selectedPortfolioId.value)
     }
-    // ------------ toggler
+
+    // ---------------------------------- Page Toggler
     const toggler = usePageToggler()
     const { toggle, toggleAddPortfolio, toggleRemovePortfolio } = storeToRefs(toggler)
 
     const isToggled = computed(() => toggle.value)
     const isToggleAddPortfolio = computed(() => toggleAddPortfolio.value)
     const isToggleRemovePortfolio = computed(() => toggleRemovePortfolio.value)
-    // ----------------------------------
+
+    // ---------------------------------- UI func
     function onSelect(item) {
         toggler.toggleCount()
     }
@@ -83,8 +120,25 @@
         border-left: 2px solid var(--border-color);
     }
 
-    .transaction {
-        padding-bottom: 100px;
+    .portfolio-metrics {
+        padding: 0 5px;
+        border-radius: 5px;
+    }
+
+    .metrics-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0 0 10px 0;
+        font-size: 0.9rem;
+    }
+
+    .metrics-row:first-child {
+        margin-top: 10px;
+    }
+
+    .title {
+        max-width: 130px;
     }
 
     button, select {

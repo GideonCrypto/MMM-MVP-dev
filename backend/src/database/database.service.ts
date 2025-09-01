@@ -7,7 +7,7 @@ import { parse } from '@fast-csv/parse';
 
 @Injectable()
 export class DatabaseService {
-    constructor(private prisma: PrismaService,) {}
+    constructor(private prisma: PrismaService) {}
 
     private async exportToCSV(modelName: string, data: any[]) {
         const filePath = path.join(__dirname, '..', '..', 'exports', `${modelName}.csv`);
@@ -26,15 +26,16 @@ export class DatabaseService {
         const assets = await this.prisma.asset.findMany();
         const portfolios = await this.prisma.portfolio.findMany();
         const transactions = await this.prisma.transaction.findMany();
+        const marketData = await this.prisma.marketData.findMany();
 
         await this.exportToCSV('User', users);
         await this.exportToCSV('Asset', assets);
         await this.exportToCSV('Portfolio', portfolios);
         await this.exportToCSV('Transaction', transactions);
+        await this.exportToCSV('MarketData', marketData);
 
-        return '✅ All data exported too /exports';
+        return '✅ All data exported to /exports';
     }
-
 
     async importCSV(modelName: string): Promise<void> {
         const filePath = path.join(__dirname, '..', '..', 'exports', `${modelName}.csv`);
@@ -47,99 +48,164 @@ export class DatabaseService {
 
         const getUniqueKey = (modelName: string, data: any) => {
             switch (modelName.toLowerCase()) {
-            case 'user':
-            case 'portfolio':
-            case 'transaction':
-                return { id: Number(data.id) };
-            case 'asset':
-                return { id: data.id };
-            default:
-                throw new Error(`Unknown model for get key: ${modelName}`);
+                case 'user':
+                case 'portfolio':
+                case 'transaction':
+                    return { id: Number(data.id) };
+                case 'asset':
+                case 'marketdata':
+                    return { id: data.id };
+                default:
+                    throw new Error(`Unknown model for get key: ${modelName}`);
             }
         };
 
         return new Promise((resolve, reject) => {
             fs.createReadStream(filePath)
-            .pipe(parse({ headers: true }))
-            .on('error', reject)
-            .on('data', (row) => rows.push(row))
-            .on('end', async () => {
-                const modelMap = {
-                    user: this.prisma.user,
-                    asset: this.prisma.asset,
-                    portfolio: this.prisma.portfolio,
-                    transaction: this.prisma.transaction,
-                };
+                .pipe(parse({ headers: true }))
+                .on('error', reject)
+                .on('data', (row) => rows.push(row))
+                .on('end', async () => {
+                    const modelMap = {
+                        user: this.prisma.user,
+                        asset: this.prisma.asset,
+                        portfolio: this.prisma.portfolio,
+                        transaction: this.prisma.transaction,
+                        marketdata: this.prisma.marketData,
+                    };
 
-                const key = modelName.toLowerCase() as keyof typeof modelMap;
+                    const key = modelName.toLowerCase() as keyof typeof modelMap;
 
-                if (!(key in modelMap)) {
-                throw new Error(`Model ${modelName} not found`);
-                }
+                    if (!(key in modelMap)) {
+                        throw new Error(`Model ${modelName} not found`);
+                    }
 
-                const modelClient = modelMap[key];
+                    const modelClient = modelMap[key];
 
-                for (const row of rows) {
-                    const data = this.parseRow(row);
+                    for (const row of rows) {
+                        const data = this.parseRow(row, modelName);
 
-                    try {
-                        const uniqueWhere = getUniqueKey(modelName, data);
+                        try {
+                            const uniqueWhere = getUniqueKey(modelName, data);
 
-                        await (modelClient as any).upsert({
-                            where: uniqueWhere,
-                            update: data,
-                            create: data,
-                        });
-                    } catch (e) {
-                        if (e instanceof Error) {
-                            console.error(`❌ Error upsert in ${modelName}:`, e.message);
-                        } else {
-                            console.error(`❌ Error upsert in ${modelName}:`, e);
+                            await (modelClient as any).upsert({
+                                where: uniqueWhere,
+                                update: data,
+                                create: data,
+                            });
+                        } catch (e) {
+                            if (e instanceof Error) {
+                                console.error(`❌ Error upsert in ${modelName}:`, e.message);
+                            } else {
+                                console.error(`❌ Error upsert in ${modelName}:`, e);
+                            }
                         }
                     }
-                }
-                resolve();
-            });
+                    resolve();
+                });
         });
     }
 
     async importAllFromCSV(): Promise<string> {
-        const order = ['User', 'Asset', 'Portfolio', 'Transaction'];
+        const order = ['User', 'Asset', 'Portfolio', 'Transaction', 'MarketData'];
         for (const model of order) {
             console.log(`📥 Import: ${model}`);
             await this.importCSV(model);
         }
-        return '✅ All db import compleate';
+        return '✅ All db import complete';
     }
 
-    private parseRow(row: any) {
+    private parseRow(row: any, modelName: string) {
         const parsed: any = { ...row };
 
-        for (const key in parsed) {
-            let value = parsed[key];
-            
-            if (value === 'null') {// null-string → null
-                parsed[key] = null;
-            } else if (value === '') {// '' → null
-                parsed[key] = null; 
-            } else if (!isNaN(value) && typeof value !== 'boolean') {// number
-                parsed[key] = Number(value);
-            } else if (typeof value === 'string' && /\d{4}-\d{2}-\d{2}T/.test(value)) {// ISO-string → new Date
-            const date = new Date(value);
-                if (!isNaN(date.getTime())) parsed[key] = date;
-            } else if (typeof value === 'string') {
-                const timestamp = Date.parse(value);
-                if (!isNaN(timestamp)) {
-                    parsed[key] = new Date(timestamp);
-                }
+        const schema: Record<string, Record<string, "string" | "number" | "float" | "date">> = {
+            user: {
+                id: "number",
+                name: "string",
+                password: "string",
+                createdAt: "date",
+            },
+            asset: {
+                id: "string",
+                name: "string",
+                symbol: "string",
+                marketId: "string",
+                userId: "number",
+            },
+            portfolio: {
+                id: "number",
+                name: "string",
+                userId: "number",
+                createdAt: "date",
+            },
+            transaction: {
+                id: "number",
+                type: "string",
+                assetId: "string",
+                quantity: "float",
+                price: "float",
+                timestamp: "date",
+                userId: "number",
+                portfolioId: "number",
+            },
+            marketdata: {
+                id: "string",
+                symbol: "string",
+                name: "string",
+                image: "string",
+                currentPrice: "float",
+                marketCap: "float",
+                marketCapRank: "number",
+                fullyDilutedValuation: "float",
+                totalVolume: "float",
+                high24h: "float",
+                low24h: "float",
+                priceChange24h: "float",
+                priceChangePercentage24h: "float",
+                marketCapChange24h: "float",
+                marketCapChangePercentage24h: "float",
+                circulatingSupply: "float",
+                totalSupply: "float",
+                maxSupply: "float",
+                ath: "float",
+                athChangePercentage: "float",
+                athDate: "date",
+                atl: "float",
+                atlChangePercentage: "float",
+                atlDate: "date",
+                lastUpdated: "date",
+                assetId: "string",
             }
-        }
-        
-        if ('password' in parsed && parsed.password !== null) {// password → string
-            parsed.password = String(parsed.password);
+        };
+
+        const modelSchema = schema[modelName.toLowerCase()];
+
+        for (const key in parsed) {
+            const value = parsed[key];
+
+            if (value === 'null' || value === '') {
+                parsed[key] = null;
+                continue;
+            }
+
+            switch (modelSchema?.[key]) {
+                case "number":
+                    parsed[key] = Number(value);
+                    break;
+                case "float":
+                    parsed[key] = parseFloat(value);
+                    break;
+                case "date":
+                    parsed[key] = new Date(value);
+                    break;
+                case "string":
+                    parsed[key] = String(value);
+                    break;
+                default:
+                    parsed[key] = value;
+            }
         }
 
         return parsed;
     }
 }
-

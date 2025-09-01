@@ -36,7 +36,7 @@
 
   const totalValue = computed(() =>
     isPortfolioReady.value
-      ? portfolio.value.reduce((sum, item) => sum + item.value, 0)
+      ? portfolio.value.reduce((sum, item) => sum + Number(item.value), 0)
       : 0
   )
 

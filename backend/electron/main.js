@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, shell } from 'electron';
+import { app, BrowserWindow, globalShortcut, shell, Notification } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import { spawn } from 'child_process';
@@ -52,7 +52,6 @@ let mainWindow = null;
 
 async function startBackend() {
   if (isPackaged) {
-    // prod
     const backendRoot = path.join(process.resourcesPath, 'app', 'backend');
     const backendEntry = path.join(backendRoot, 'dist/src', 'main.js');
 
@@ -95,27 +94,46 @@ async function startBackend() {
     });
 
     try {
-      await waitForPort(3000);
+      await waitForPort(3000, '127.0.0.1', 80000);
       console.log('✅ Backend is running on :3000');
 
       if (mainWindow && !mainWindow.isDestroyed()) {
-        const frontendIndex = path.join(process.resourcesPath, 'app', 'frontend', 'dist', 'index.html')
-        await mainWindow.loadFile(frontendIndex, { hash: '/' }) // open Dashboard ("/")
-        console.log('[MAIN] Frontend loaded after backend start')
+        const frontendIndex = path.join(process.resourcesPath, 'app', 'frontend', 'dist', 'index.html');
+        await mainWindow.loadFile(frontendIndex, { hash: '/' });
+        mainWindow.show();
       }
     } catch (err) {
-      console.warn('[MAIN] waitForPort timeout or error:', err);
+      console.error('[MAIN] Backend failed to start or timed out:', err);
+
+      new Notification({
+        title: 'App start error',
+        body: 'Unable to run server. Reaload app.'
+      }).show();
+
+      setTimeout(() => {
+        app.quit();
+      }, 3000);
     }
   } else {
     // DEV
     try {
-      await waitForPort(3000);
+      await waitForPort(3000, '127.0.0.1', 20000);
       console.log('✅ Backend dev is reachable on :3000');
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.reload();
+        mainWindow.show();
       }
     } catch (err) {
-      console.warn('[MAIN] waitForPort dev timeout or error:', err);
+      console.error('[MAIN] Dev backend timeout:', err);
+
+      new Notification({
+        title: 'Start app error',
+        body: 'Backend error.'
+      }).show();
+
+      setTimeout(() => {
+        app.quit();
+      }, 3000);
     }
   }
 }
@@ -126,6 +144,7 @@ async function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    show: false,
     icon: path.join(__dirname, "img", "icon-256x256.ico"),
     webPreferences: {
       contextIsolation: true,
@@ -153,7 +172,12 @@ async function createWindow() {
   if (!isPackaged) {
     // DEV: load Vite
     await mainWindow.loadURL('http://localhost:5173/#/');
+    mainWindow.show();
   }
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+  });
 
   return mainWindow;
 }
@@ -179,7 +203,7 @@ app.whenReady().then(async () => {
     if (mainWindow) mainWindow.webContents.toggleDevTools();
   });
 
-  // back run
+  // start backend
   startBackend().catch((err) => {
     console.error('[MAIN] Backend failed to start:', err);
   });

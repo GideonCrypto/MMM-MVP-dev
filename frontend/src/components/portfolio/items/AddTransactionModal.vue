@@ -153,7 +153,7 @@
 
     const error = ref(null)
 
-    function formatDateForInput(dateStr) {
+    function formatDateForInput(dateStr) {        
         const parts = dateStr.split('.');
         if (parts.length !== 3) return '';
 
@@ -258,7 +258,7 @@
         if (toggleUpdateItem.value == true) {
             try {
                 const response = await api.patch('transactionData/updateTransaction', {
-                    price: data.price,
+                    price: Number(data.price),
                     quantity: data.totalCoins,
                     timestamp: data.date,
                     portfolioId: data.portfolioId,

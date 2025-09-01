@@ -30,8 +30,8 @@
 
   const TransactionsStore = useTransactionsStore()
   const {
-    selectedAssetTransactionsFormatted,
-    filteredAllTransactions,
+    selectedAssetTransactionsFormatted,//graph for asset
+    filteredAllTransactions,//graph main
   } = storeToRefs(TransactionsStore)
 
   ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend, Filler)

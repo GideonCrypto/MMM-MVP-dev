@@ -14,12 +14,12 @@
 <script setup>
     defineProps({
         name: String,
-        currentPrice: Number,
-        totalValue: Number,
-        totalCoins: Number,
+        currentPrice: [Number, String],
+        totalValue: [Number, String],
+        totalCoins: [Number, String],
         totalInvested: [Number, String],
-        profitLoss: Number,
-        totalTransactions: Number,
+        profitLoss: [Number, String],
+        totalTransactions: [Number, String],
         portfoliosList: String,
         type: String,
     })

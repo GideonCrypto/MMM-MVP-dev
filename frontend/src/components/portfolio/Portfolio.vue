@@ -12,14 +12,14 @@
           </div>
           <div class="calc-wrapper">
             <ul class="calc-list">
-              <li>{{t('portfolio.metrics.currentPrice')}} {{ currentPrice }} USDT</li>
+              <li>{{t('portfolio.metrics.currentPrice')}} {{ metrics.currentPriceDisplay }} USDT</li>
               <li>{{t('portfolio.metrics.currentValue')}}  {{ metrics.currentValue }} USDT</li>
               <li>{{t('portfolio.metrics.totalCoins')}}  {{ metrics.remainingCoins}}</li>
               <li>{{t('portfolio.metrics.ROI')}}  {{ metrics.roi }}</li>
               <li>{{t('portfolio.metrics.averageBuyPrice')}}  {{ metrics.averageBuyPrice }} USDT</li>
               <li>{{t('portfolio.metrics.totalInvested')}}  {{ metrics.totalInvested }} USDT</li>
               <li>{{t('portfolio.metrics.totalRealized')}}  {{ metrics.totalSold }} USDT</li>
-              <li>{{t('portfolio.metrics.URProfit')}}  {{ metrics.unrealizedProfit }} / {{ metrics.realizedProfit }} USDT</li>
+              <li>{{t('portfolio.metrics.unrealizedProfit')}}  {{ metrics.unrealizedProfit }} / {{ metrics.realizedProfit }} USDT</li>
               <li>{{t('portfolio.metrics.coinsUsdtValue')}}  {{ metrics.remainingCoins }} / {{ metrics.currentValue }} USDT</li>
             </ul>
           </div>
@@ -44,13 +44,13 @@
           v-for="item in TransactionsStore.filteredSortedAssets"
           :key="item.id"
           :name="item.name"
-          :currentPrice="item.currentPrice"
+          :currentPrice="item.currentPriceDisplay"
           :totalValue="item.totalValue"
           :totalCoins="item.totalCoins"
           :totalInvested="item.totalInvested"
           :profitLoss="item.profitLoss"
           :totalTransactions="item.totalTransactions"
-          :portfoliosList="item.portfoliosList"
+          :portfoliosList="item.portfoliosList.toString()"
           @click="onSelect(item)"
         />
       </ul>
@@ -97,7 +97,7 @@
   const { t } = useI18n()
 
   const TransactionsStore = useTransactionsStore()
-  const { metrics, currentPrice } = storeToRefs(TransactionsStore)
+  const { metrics, currentPrice, selectedAsset } = storeToRefs(TransactionsStore)
   const { addAsset, setTransactions, setCurrentPrice } = TransactionsStore
 
   const toggler = usePageToggler()
@@ -140,19 +140,41 @@
 
 <style scoped>
   .portfolio-main-container {
-    display: grid;
-    width: 100%;
-    grid-template-rows: 1fr auto;
-    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100vh;
+    padding: 10px;
+    box-sizing: border-box;
     gap: 5px;
+    overflow: hidden;
+    width: 100%;
   }
 
-  /* top-container */
+  .top-container {
+  flex: 0 0 60%;
+  min-height: 0;
+  overflow: hidden;
+  border: 2px solid var(--border-color);
+  display: grid;
+  grid-template-columns: 1fr 250px;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.bot-container {
+  flex: 0 0 40%;
+  min-height: 0;
+  overflow-y: auto;
+  border: 2px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+}
+
   .top-container {
     display: grid;
-    grid-template-columns: 1fr 210px;
+    grid-template-columns: 1fr 250px;
     gap: 10px;
-    border: 2px solid var(--border-color);
     align-items: stretch;
   }
 
@@ -160,39 +182,72 @@
   .menu-col,
   .asset-data-container {
     min-width: 0;
+    min-height: 0;
     height: 100%;
   }
 
   .grafs-container {
     display: grid;
     padding: 5px;
+    overflow: hidden;
   }
+
   .graf-wrapper {
     background-color: white;
     border-radius: 5px;
     width: 100%;
     height: 100%;
-    min-height: 300px;
+    min-height: 0;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
+
   .asset-data-container {
     display: grid;
     gap: 5px;
     grid-template-columns: 3fr 1fr;
     height: 100%;
+    min-height: 0;
+    align-items: stretch;
   }
-  .calc-list {
-    display: grid;
+
+  .calc-wrapper {
+    display: flex;
+    flex-direction: column;
     height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    padding: 4px;
+    box-sizing: border-box;
+  }
+
+  .calc-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    box-sizing: border-box;
     font-size: 13px;
     border: 2px solid var(--border-color);
     border-bottom: none;
   }
+
   .calc-list > li {
+    padding: 8px 10px;
     text-align: left;
-    align-content: center;
+    border-bottom: 1px solid var(--border-color);
+    box-sizing: border-box;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .calc-list > li:last-child {
     border-bottom: 2px solid var(--border-color);
-    padding: 5px;
   }
 
   .menu-col {
@@ -200,24 +255,33 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    min-height: 0;
   }
 
-  /* bot-container */
   .bot-container {
-    height: 350px;
     overflow-y: auto;
-    border: 2px solid var(--border-color);
     scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
   }
+
   .list-container {
     display: grid;
+    min-height: 0;
   }
+
   .list-item {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
     border-bottom: 2px solid var(--border-color);
   }
+
   .clickable { cursor: pointer; }
+
+  .list-item > *:first-child {
+    border-left: none;
+  }
+
   span {
     display: grid;
     border-left: 2px solid var(--border-color);
@@ -225,11 +289,17 @@
     place-items: center;
     text-align: center;
   }
-  .list-item :first-child { border-left: none; }
+
   .sorting {
     position: sticky;
     top: 0;
     z-index: 10;
     background: var(--table-header-color);
+  }
+
+  .add-transaction-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
   }
 </style>
