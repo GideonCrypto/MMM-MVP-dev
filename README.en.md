@@ -24,8 +24,6 @@ It includes frontend, backend, and a desktop wrapper with Electron, plus integra
   - [Market Data](#market-data)
   - [Import & Export](#import--export)
 - [Installation](#installation)
-- [Contributing](#contributing)
-- [License](#license)
 
 ---
 
