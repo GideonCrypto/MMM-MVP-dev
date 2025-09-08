@@ -1,4 +1,4 @@
-# МММ
+# МММ Money Movement Monitor
 
 [English version](./README.en.md)
 
