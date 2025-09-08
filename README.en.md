@@ -4,7 +4,7 @@
 ### 📄 `README.en.md` (English)
 
 ```markdown
-# MMM
+# MMM Money Movement Monitor
 
 [Русская версия](./README.md)
 
